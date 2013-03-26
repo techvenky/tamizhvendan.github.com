@@ -66,6 +66,10 @@ github_skip_forks: true
 # Twitter
 twitter_user: tamizhvendan
 twitter_tweet_button: true
+twitter_tweet_count: 4
+twitter_show_replies: false
+twitter_follow_button: true
+twitter_show_follower_count: true
 
 # Google +1
 google_plus_one: true
@@ -93,3 +97,7 @@ google_analytics_tracking_id:
 
 # Facebook Like
 facebook_like: true
+
+# Coderwall achievements
+coderwall_user: tamizhvendan
+coderwall_endorse_me: true
