@@ -8,101 +8,200 @@ categories:
 ---
 
 <div class='post'>
-<div dir="ltr" style="text-align: left;" trbidi="on">Would you like to create a webpage like iGoogle (www.google.co.in/ig)??<br /><br />This blog post is for you!!<br /><br />I hope you are aware of the following stuffs which are the building blocks of this blog post.<br />1.<a href="http://www.amazon.com/Head-First-HTML-CSS-XHTML/dp/059610197X?ie=UTF8&amp;tag=bor0b-20&amp;link_code=btl&amp;camp=213689&amp;creative=392969" target="_blank">HTML </a><img alt="" border="0" height="1" src="http://www.assoc-amazon.com/e/ir?t=bor0b-20&amp;l=btl&amp;camp=213689&amp;creative=392969&amp;o=1&amp;a=059610197X" style="border: none !important; margin: 0px !important; padding: 0px !important;" width="1" /><br />2.<a href="http://www.amazon.com/CSS-Missing-David-Sawyer-McFarland/dp/0596802447?ie=UTF8&amp;tag=bor0b-20&amp;link_code=btl&amp;camp=213689&amp;creative=392969" target="_blank">CSS</a><img alt="" border="0" height="1" src="http://www.assoc-amazon.com/e/ir?t=bor0b-20&amp;l=btl&amp;camp=213689&amp;creative=392969&amp;o=1&amp;a=0596802447" style="border: none !important; margin: 0px !important; padding: 0px !important;" width="1" /> <br />3.<a href="http://www.amazon.com/jQuery-Novice-Ninja-Earle-Castledine/dp/0980576857?ie=UTF8&amp;tag=bor0b-20&amp;link_code=btl&amp;camp=213689&amp;creative=392969" target="_blank">jQuery</a><img alt="" border="0" height="1" src="http://www.assoc-amazon.com/e/ir?t=bor0b-20&amp;l=btl&amp;camp=213689&amp;creative=392969&amp;o=1&amp;a=0980576857" style="border: none !important; margin: 0px !important; padding: 0px !important;" width="1" /> <br /><br />Let us design the page using “Divide and Conquer” Approach. The tasks involved are<br />1.Defining the webpage layout using HTML<br />2.Style the webpage and Widgets(Sample iGoogle Mock up Widgets) using CSS<br />3.Add the drag and drop functionality using jQuery.<br /><br /><b>Task 1: Defining the webpage layout using HTML</b><br />The HTML is very straight forward. Entire webpage contents have been placed inside a div with the id “iGoogle”. Then each column (iGoogle uses three column layout) is defined by a div element with the id representing the corresponding columns. These columns act as a placeholder for Widgets. Each widget defined as a div element which contains two div elements inside it which represents the header and the body of the Widgets<br /><br /><pre class="html" name="code"><div id="iGoogle"><br /><div id="column1"><br /><div class="Widget"><br /><div class="WidgetHeader PurpleWidgetHeader"><br />Widget 1</div><br /><div class="WidgetBody"><br /></div><br /></div><br /><div class="Widget"><br /><div class="WidgetHeader GreenWidgetHeader"><br />Widget 2</div><br /><div class="WidgetBody"><br /></div><br /></div><br /><div class="Widget"><br /><div class="WidgetHeader GrayWidgetHeader"><br />Widget 3</div><br /><div class="WidgetBody"><br /></div><br /></div><br /></div><br /><div id="column2"><br /><div class="Widget"><br /><div class="WidgetHeader GrayWidgetHeader"><br />Widget 4</div><br /><div class="WidgetBody"><br /></div><br /></div><br /></div><br /><div id="column3"><br /><div class="Widget"><br /><div class="WidgetHeader GreenWidgetHeader"><br />Widget 5</div><br /><div class="WidgetBody"><br /></div><br /></div><br /><div class="Widget"><br /><div class="WidgetHeader GrayWidgetHeader"><br />Widget 6</div><br /><div class="WidgetBody"><br /></div><br /></div><br /></div><br /></div><br /></pre><br /><br /><b>Task 2: Style the webpage and widgets<br /></b>            Now we have the HTML Layout ready. Our next task would be applying style to the webpage and the widgets using CSS.<br /><pre class="css" name="code">/* Entire Page has been divided into 3Columns. <br />Note: iGoogle Page has 3 columns */<br />#column1,#column2,#column3 <br />{<br />display:inline-block;<br />float:left;<br />width: 33%;            <br />height: auto;            <br />text-align:center;</pre><pre class="css" name="code">padding-bottom: 100px;<br />}<br /><br />/* Css Classes for Entire Widget */<br /><br />.Widget <br />{         <br />margin: 10px;<br />margin-left: auto;<br />margin-right: auto;<br />width: 95%;<br />min-height: 200px;<br />border: 1px solid Black;<br />}<br /><br /><br />/* Css Classes for Widget Headers */<br /><br />.WidgetHeader <br />{<br />height: 25px;    <br />cursor: move; <br />text-align: left;<br />padding-left: 3px;<br />color: White;<br />font-weight: bold;                      <br />}        <br /><br />.GreenWidgetHeader <br />{<br />background-color:Green;<br />}<br /><br />.GrayWidgetHeader <br />{<br />background-color:Gray;<br />}<br /><br />.PurpleWidgetHeader <br />{<br />background-color:Purple;<br />}<br /><br />/* Css Classes for Widget Body */<br />.WidgetBody <br />{<br />min-height: 175px;<br />height:auto;<br />background: #F0F0F0;<br />}<br /><br />/* Placeholder while dragging the widget using jQuery*/<br />.ui-sortable-placeholder { <br />border: 1px dashed black; <br />visibility: visible !important; <br />height: 50px !important; <br />}<br />.ui-sortable-placeholder * { visibility: hidden; }<br /><br />.footer <br />{<br />clear:both;<br />display:block;                                    <br />position:absolute;         <br />color: Green;                <br />bottom: 5px;<br />right: 5px;<br />}       <br /><br /></pre><br /><b>Task 3:  Add the drag and drop functionality using jQuery</b><br />jQuery offers a rich set of functionality which can be implemented by less lines of coding. With jQuery you can “write less and do more”.  All you need to refer the jQuery API files in your javascript and make use of the functionality it provides. To implement the drag and drop functionality we need the following jQuery library files which can be downloaded from the locations mentioned in the “src” attribute<br /><pre class="html" name="code"><script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"><br /></script><br /><script src="http://jqueryui.com/ui/jquery.ui.core.js" type="text/javascript"><br /></script><br /><script src="http://jqueryui.com/ui/jquery.ui.widget.js" type="text/javascript"><br /></script><br /><script src="http://jqueryui.com/ui/jquery.ui.mouse.js" type="text/javascript"><br /></script><br /><script src="http://jqueryui.com/ui/jquery.ui.sortable.js" type="text/javascript"><br /></script><br /></pre><br />Now we have the necessary jQuery libraries to implement the drag and drop functionality and all set for implementing the drag and drop support. Here is the code part which implements the drag and drop functionality.<br /><pre class="js" name="code"><script type="text/javascript"><br />$(document).ready(function () {<br /><br />$("#column1,#column2,#column3").sortable({<br />connectWith: "#column1,#column2,#column3",<br />handle: '.WidgetHeader',<br />opacity: 0.6<br />});<br /><br />$("#column1,#column2,#column3").disableSelection();<br /><br />});<br /></script><br /></pre><br />Yes!! That’s it!! Just three function calls and seven lines of coding!! <br />Now you can drag and drop the widgets and play!!  <br /><br />Well, let me explain the jQuery code<br />The jQuery UI Sortable plugin makes selected elements sortable by dragging with the mouse. Here in our case the selected elements refer to “column1, column2, colum3” which are the placeholders of the widgets. This sortable plugin has many optional arguments which define how drag and drop should be done. “connectWith” option allows drag and drop between the columns. i.e., Elements (Widgets in our case) inside the column1 or column2 or column3 can be dragged and dropped on column1 or column2 or column3. “handle” option specifies the element which can be used to drag the widget between the columns. “opacity” option defines the transparency of the widget while dragging.  The “disableSelection()” function disable text selection in a widget which often occur while dragging a mouse across a widget. Reference: http://docs.jquery.com/UI/Sortable<br /><br /><b>Summary:</b><br />To keep the blog post simple, I didn’t implement the persistence of the widget positions. So widgets should not retain its positions when you refresh the page. You can see the source code of this blog post <a href="https://gist.github.com/3632472"> Here </a><br /><br />Thanks <br />Tamizhvendan S</div></div>
-<h2>Comments</h2>
-<div class='comments'>
-<div class='comment'>
-<div class='author'>Oscar</div>
-<div class='content'>
-You can check this problem in the next page: http://TuPlaneta.es/new/<br /><br />Thanks, Oscar.</div>
+<div dir="ltr" style="text-align: left;" trbidi="on">Would you like to create a webpage like iGoogle (www.google.co.in/ig)??<br /><br />This blog post is for you!!<br /><br />I hope you are aware of the following stuffs which are the building blocks of this blog post.<br />1.<a href="http://www.amazon.com/Head-First-HTML-CSS-XHTML/dp/059610197X?ie=UTF8&amp;tag=bor0b-20&amp;link_code=btl&amp;camp=213689&amp;creative=392969" target="_blank">HTML </a><img alt="" border="0" height="1" src="http://www.assoc-amazon.com/e/ir?t=bor0b-20&amp;l=btl&amp;camp=213689&amp;creative=392969&amp;o=1&amp;a=059610197X" style="border: none !important; margin: 0px !important; padding: 0px !important;" width="1" /><br />2.<a href="http://www.amazon.com/CSS-Missing-David-Sawyer-McFarland/dp/0596802447?ie=UTF8&amp;tag=bor0b-20&amp;link_code=btl&amp;camp=213689&amp;creative=392969" target="_blank">CSS</a><img alt="" border="0" height="1" src="http://www.assoc-amazon.com/e/ir?t=bor0b-20&amp;l=btl&amp;camp=213689&amp;creative=392969&amp;o=1&amp;a=0596802447" style="border: none !important; margin: 0px !important; padding: 0px !important;" width="1" /> <br />3.<a href="http://www.amazon.com/jQuery-Novice-Ninja-Earle-Castledine/dp/0980576857?ie=UTF8&amp;tag=bor0b-20&amp;link_code=btl&amp;camp=213689&amp;creative=392969" target="_blank">jQuery</a><img alt="" border="0" height="1" src="http://www.assoc-amazon.com/e/ir?t=bor0b-20&amp;l=btl&amp;camp=213689&amp;creative=392969&amp;o=1&amp;a=0980576857" style="border: none !important; margin: 0px !important; padding: 0px !important;" width="1" /> <br /><br />Let us design the page using “Divide and Conquer” Approach. The tasks involved are<br />1.Defining the webpage layout using HTML<br />2.Style the webpage and Widgets(Sample iGoogle Mock up Widgets) using CSS<br />3.Add the drag and drop functionality using jQuery.<br /><br /><h3>Task 1: Defining the webpage layout using HTML</h3><br />The HTML is very straight forward. Entire webpage contents have been placed inside a div with the id “iGoogle”. Then each column (iGoogle uses three column layout) is defined by a div element with the id representing the corresponding columns. These columns act as a placeholder for Widgets. Each widget defined as a div element which contains two div elements inside it which represents the header and the body of the Widgets<br /><br />
+	{% codeblock lang:html %}
+<div id="column1">
+    <br />
+    <div class="Widget">
+        <br />
+        <div class="WidgetHeader PurpleWidgetHeader">
+            <br />
+            Widget 1</div>
+        <br />
+        <div class="WidgetBody">
+            <br />
+        </div>
+        <br />
+    </div>
+    <br />
+    <div class="Widget">
+        <br />
+        <div class="WidgetHeader GreenWidgetHeader">
+            <br />
+            Widget 2</div>
+        <br />
+        <div class="WidgetBody">
+            <br />
+        </div>
+        <br />
+    </div>
+    <br />
+    <div class="Widget">
+        <br />
+        <div class="WidgetHeader GrayWidgetHeader">
+            <br />
+            Widget 3</div>
+        <br />
+        <div class="WidgetBody">
+            <br />
+        </div>
+        <br />
+    </div>
+    <br />
 </div>
-<div class='comment'>
-<div class='author'>Unknown</div>
-<div class='content'>
-In Google Chrome and Windows XP when widgets have expanded the vertical scroll of the page (no content widgets) does not reach the bottom of the page. In IE and FireFox works fine. In Windows 7 too.<br /><br />Any idea or solution?<br /><br />Thank you, Oscar.</div>
+
+<div id="column2">
+    <br />
+    <div class="Widget">
+        <br />
+        <div class="WidgetHeader GrayWidgetHeader">
+            <br />
+            Widget 4</div>
+        <br />
+        <div class="WidgetBody">
+            <br />
+        </div>
+        <br />
+    </div>
+    <br />
 </div>
-<div class='comment'>
-<div class='author'>Unknown</div>
-<div class='content'>
-This comment has been removed by the author.</div>
+
+<div id="column3">
+    <br />
+    <div class="Widget">
+        <br />
+        <div class="WidgetHeader GreenWidgetHeader">
+            <br />
+            Widget 5</div>
+        <br />
+        <div class="WidgetBody">
+            <br />
+        </div>
+        <br />
+    </div>
+    <br />
+    <div class="Widget">
+        <br />
+        <div class="WidgetHeader GrayWidgetHeader">
+            <br />
+            Widget 6</div>
+        <br />
+        <div class="WidgetBody">
+            <br />
+        </div>
+        <br />
+    </div>
+    <br />
 </div>
-<div class='comment'>
-<div class='author'>Shruti Garg</div>
-<div class='content'>
-Thank you very much for your help.<br />It works fine. :)<br /> </div>
-</div>
-<div class='comment'>
-<div class='author'>TamizhVendan S</div>
-<div class='content'>
-Hi, Please refer the gist here to achieve fixed widgets https://gist.github.com/3838578</div>
-</div>
-<div class='comment'>
-<div class='author'>Shruti Garg</div>
-<div class='content'>
-Thanks for the reply. <br />my second query is solved.<br /><br />But, the first query is not solved yet.Actually i want to stop the moving and swapping of widget1(of column 1).<br />I fixed the movable issue of widget1 [of column1] by apply the style &quot;Cursor:none;&quot; to the widget1.<br />But when i m dragging the widget 4 or 5 from the column2 or 3 respectively,then widget 4 swap the widget1 and the widget4 is now placed on the top left of the page.[Widget4 takes the position of widget1 and widget1 shifts below]. I want to stop this swapping of widget1. It remains at the top left position. So please help me to solve this issue.</div>
-</div>
-<div class='comment'>
-<div class='author'>TamizhVendan S</div>
-<div class='content'>
-1. You can achieve fixed widget by specifying what are all the elements that you want to drag and drop by specifying like below<br /><br />Suppose, if you added a class called &#39;Sortable&#39; to all the &#39;Widget&#39; elements, then you enable sorting only on them by using <br /><br />$(&quot;#column1,#column2,#column3&quot;).sortable({<br />                connectWith: &quot;#column1,#column2,#column3&quot;,<br />                handle: &#39;.WidgetHeader&#39;,<br />                opacity: 0.6,<br />                items : &#39;.Sortable&#39;<br />});<br /><br />2. It is actually a bug, updated the source code, kindly check out the new code in the gist.</div>
-</div>
-<div class='comment'>
-<div class='author'>Shruti Garg</div>
-<div class='content'>
-Hi, <br /><br />The article is really nice. Help me a lot.i want to know two things<br />1.I want to fix the Widget1. So that the it should not be movable and any other widget should not swap the widget1.<br />2. Once all the widget in one column say (widget5 and 6 from column 3) were moved to column2. Now once the column is empty.then,i want to move the widget in that column then it should be placed on the column. Right now, once the column is empty, widget cannot be moved to that column.<br /><br />Please Help me. Thanks </div>
-</div>
-<div class='comment'>
-<div class='author'>TamizhVendan S</div>
-<div class='content'>
-I have just checked it out.. As the jQuery library files are not being loaded, it is not working.. Updated the blog post to point to a gist instead of the demo</div>
-</div>
-<div class='comment'>
-<div class='author'>Matthew Lindahl</div>
-<div class='content'>
-I noticed that as well.  Mac/Chrome</div>
-</div>
-<div class='comment'>
-<div class='author'>Rootical</div>
-<div class='content'>
-Your demo is not working unfortunately. Latest Firefox/Ubuntu</div>
-</div>
-<div class='comment'>
-<div class='author'>TamizhVendan S</div>
-<div class='content'>
-ZER,<br />Sorry for the delayed reply.<br /><br />Have you added all the javascript references files mentioned in the post ?</div>
-</div>
-<div class='comment'>
-<div class='author'>ZER Blog</div>
-<div class='content'>
-hello i got an error like $(&quot;#column1 #column2 #column3&quot;).sortable is not a function.... how can i solve this .... please help...</div>
-</div>
-<div class='comment'>
-<div class='author'>TamizhVendan S</div>
-<div class='content'>
-Hi Paul,<br /><br />I&#39;m not able to reproduce the same. Can you try handling the receive event of  sortable plugin and do event.preventDefault() or return false in the event handler.</div>
-</div>
-<div class='comment'>
-<div class='author'>Paul Clarke</div>
-<div class='content'>
-Hi,<br /><br />I&#39;m have found the same issue.  When a widget is moved (dragged and dropped) it reloads/resets.<br /><br />The data is loaded from the &quot;$(document).ready(function()&quot; event in the iFrame.  Is there another way to do it?<br /><br /><br />Cheers Paul.</div>
-</div>
-<div class='comment'>
-<div class='author'>TamizhVendan S</div>
-<div class='content'>
-Hi, <br />Sorry for the delayed reply.<br />I&#39;ve simulated the behavior that you mentioned it doesn&#39;t seem to reload. Can you share the code snippet.</div>
-</div>
-<div class='comment'>
-<div class='author'>Ratan Agrawala</div>
-<div class='content'>
-Thanks for the reply TamizVendan. Say you have the gadget in column 1 and it does some dynamic stuff i.e. loading the data from the server. if you then move the gadget to column 2, it reloads the data again. I was wondering if there is any way to stop that. as it can cause performance problems.</div>
-</div>
-<div class='comment'>
-<div class='author'>TamizhVendan S</div>
-<div class='content'>
-Hi Agrawala , <br /><br />Can you elaborate what you exactly mean in “whenever I move my widget it reloads itself” <br /><br />Regarding minimizing and closing the widget, you can easily do that by adding two more span tags inside the <br />Widget Header div and handling its Click events</div>
-</div>
-<div class='comment'>
-<div class='author'>Ratan Agrawala</div>
-<div class='content'>
-Thanks a lot for this article, nice and easy.<br />One thing though, whenever I move my widget it reloads itself. is there any way to stop it doing that. Also how to impliment close and minimize widgets.</div>
-</div>
+	
+	{% endcodeblock %}
+
+	<br /><br /><h3>Task 2: Style the webpage and widgets</h3>            Now we have the HTML Layout ready. Our next task would be applying style to the webpage and the widgets using CSS.<br />
+	
+	{% codeblock lang:css %}
+
+/* Entire Page has been divided into 3Columns. Note: iGoogle Page has 3 columns */
+#column1, #column2, #column3
+{
+    display: inline-block;
+    float: left;
+    width: 33%;
+    height: auto;
+    text-align: center;
+    padding-bottom: 100px;
+}
+/* Css Classes for Entire Widget */
+.Widget
+{
+    margin: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 95%;
+    min-height: 200px;
+    border: 1px solid Black;
+}
+/* Css Classes for Widget Headers */
+.WidgetHeader
+{
+    height: 25px;
+    cursor: move;
+    text-align: left;
+    padding-left: 3px;
+    color: White;
+    font-weight: bold;
+}
+.GreenWidgetHeader
+{
+    background-color: Green;
+}
+.GrayWidgetHeader
+{
+    background-color: Gray;
+}
+.PurpleWidgetHeader
+{
+    background-color: Purple;
+}
+/* Css Classes for Widget Body */
+.WidgetBody
+{
+    min-height: 175px;
+    height: auto;
+    background: #F0F0F0;
+}
+/* Placeholder while dragging the widget using jQuery*/
+.ui-sortable-placeholder
+{
+    border: 1px dashed black;
+    visibility: visible !important;
+    height: 50px !important;
+}
+.ui-sortable-placeholder *
+{
+    visibility: hidden;
+}
+.footer
+{
+    clear: both;
+    display: block;
+    position: absolute;
+    color: Green;
+    bottom: 5px;
+    right: 5px;
+}
+
+{% endcodeblock %}
+
+		<br /><h3>Task 3:  Add the drag and drop functionality using jQuery</h3>jQuery offers a rich set of functionality which can be implemented by less lines of coding. With jQuery you can “write less and do more”.  All you need to refer the jQuery API files in your javascript and make use of the functionality it provides. To implement the drag and drop functionality we need the following jQuery library files which can be downloaded from the locations mentioned in the “src” attribute<br />
+
+{% codeblock lang:html %}
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>
+<script src="http://jqueryui.com/ui/jquery.ui.core.js" type="text/javascript"></script>
+<script src="http://jqueryui.com/ui/jquery.ui.widget.js" type="text/javascript"></script>
+<script src="http://jqueryui.com/ui/jquery.ui.mouse.js" type="text/javascript"></script>
+<script src="http://jqueryui.com/ui/jquery.ui.sortable.js" type="text/javascript"></script>
+{% endcodeblock %}
+
+	<p>Now we have the necessary jQuery libraries to implement the drag and drop functionality and all set for implementing the drag and drop support. Here is the code part which implements the drag and drop functionality.</p>
+
+	{% codeblock lang:js %}
+$(document).ready(function () {        
+    $("#column1,#column2,#column3").sortable({
+        connectWith: "#column1,#column2,#column3",
+        handle: '.WidgetHeader', opacity: 0.6
+    }); 
+    
+    $("#column1,#column2,#column3").disableSelection();
+});
+	{% endcodeblock %}
+
+	<p>Yes!! That’s it!! Just three function calls and seven lines of coding!! Now you can drag and drop the widgets and play!!  </p>
+
+	<p>Well, let me explain the jQuery code</p>
+	
+	<p>The jQuery UI Sortable plugin makes selected elements sortable by dragging with the mouse. Here in our case the selected elements refer to “column1, column2, colum3” which are the placeholders of the widgets. This sortable plugin has many optional arguments which define how drag and drop should be done. </p>
+	<p>“connectWith” option allows drag and drop between the columns. i.e., Elements (Widgets in our case) inside the column1 or column2 or column3 can be dragged and dropped on column1 or column2 or column3. 
+	</p>
+	<p>“handle” option specifies the element which can be used to drag the widget between the columns. “opacity” option defines the transparency of the widget while dragging.  The “disableSelection()” function disable text selection in a widget which often occur while dragging a mouse across a widget. Reference: http://docs.jquery.com/UI/Sortable</p>
+
+	<h5>Summary:</h5>To keep the blog post simple, I didn’t implement the persistence of the widget positions. So widgets should not retain its positions when you refresh the page. You can see the source code of this blog post <a href="https://gist.github.com/3632472">here</a></div></div>
