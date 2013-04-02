@@ -41,7 +41,7 @@ $(document).ready(function () {
 $(document).ready(function () {
     $("#countries").change(function () {
     	var selectedValue = $("#countries").val();
-        $("#countryValue").text();
+        $("#countryValue").text(selectedValue);
         $("#countryText").text($("#countries > option[value='" + selectedValue + "']").html());
     });
 });
