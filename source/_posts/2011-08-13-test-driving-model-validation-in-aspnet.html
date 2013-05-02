@@ -2,7 +2,7 @@
 layout: post
 title: "Test Driving Model Validation in ASP.NET MVC3 - Part 1"
 date: 2011-08-13
-comments: false
+comments: true
 categories:
  - Unit Testing
  - ASP.NET MVC
@@ -103,7 +103,7 @@ categories:
  <div class="separator" style="clear: both; text-align: justify;">
  <br /></div>
  <div class="MsoNormal" style="text-align: justify;">
- You may wonder what it is that. There comes a feature of ASP.NET MVC 3 framework. During HTTP post action the framework validates the employee model and sets the EmployeeController's Property ModelState.IsValid to true or false. <b>It occurs only during HTTP post. </b>In our unit test code we are actually calling the action methods of the controller and not making any HTTP post. So, the ModalState is always true whenever we call the action methods of a controller from a unit testing code.&nbsp;</div>
+ You may wonder what it is that. There comes a feature of ASP.NET MVC 3 framework. During HTTP post action the framework validates the employee model and sets the EmployeeController's Property <em>ModelState.IsValid</em> to true or false. <b>It occurs only during HTTP post. </b>In our unit test code we are actually calling the action methods of the controller and not making any HTTP post. So, the ModalState is always true whenever we call the action methods of a controller from a unit testing code.&nbsp;</div>
  <div class="MsoNormal" style="text-align: justify;">
  <br /></div>
  <div class="MsoNormal" style="text-align: justify;">
@@ -119,26 +119,7 @@ categories:
  <div class="MsoNormal" style="text-align: justify;">
  <br /></div>
  <div class="MsoNormal" style="text-align: justify;">
- Now we Test drived the controller's responsibility in the context of model validation. In my <a href="http://sweettam.blogspot.com/2011/08/test-driving-model-validation-in-aspnet_17.html">next blog post</a> &nbsp;I'd showcase how to the test drive the model validation itself.</div>
- <div class="MsoNormal" style="text-align: justify;">
- <br /></div>
- <div class="MsoNormal" style="text-align: justify;">
- <br /></div>
- <div class="MsoNormal" style="text-align: justify;">
- <br /></div>
- <div class="MsoNormal" style="text-align: justify;">
- <br /></div>
- <div class="MsoNormal" style="text-align: justify;">
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
- <div class="MsoNormal" style="text-align: justify;">
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <o:p></o:p></div>
- <div class="MsoNormal" style="text-align: justify;">
- <br /></div>
- <div class="MsoNormal" style="text-align: justify;">
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </div>
- <div class="MsoNormal" style="text-align: justify;">
- <br /></div>
- <div class="MsoNormal" style="text-align: justify;">
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;</div>
+ Now we Test drived the controller's responsibility in the context of model validation. In my <a href="{% post_url 2011-08-17-test-driving-model-validation-in-aspnet_17 %}">next blog post</a> &nbsp;I'd showcase how to the test drive the model validation itself.</div>
+ 
  </div>
  </div>
