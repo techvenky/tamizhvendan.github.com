@@ -2,7 +2,7 @@
 layout: post
 title: "Test Driving Model Validation in ASP.NET MVC3 - Part 2"
 date: 2011-08-17
-comments: false
+comments: true
 categories:
  - Unit Testing
  - ASP.NET MVC
@@ -10,60 +10,67 @@ categories:
 ---
 
 <div class='post'>
-<div dir="ltr" style="text-align: left;" trbidi="on">
- <div class="MsoNormal" style="margin: 0in 0in 10pt; text-align: justify;">
- <span style="font-family: Calibri;">In </span><a href="http://sweettam.blogspot.com/2011/08/test-driving-model-validation-in-aspnet.html"><span style="color: purple; font-family: Calibri;">Part-1</span></a><span style="font-family: Calibri;"> of this small blog post series, we have explored a way to do the TDD of controller’s responsibility in the context of model validation. In this Part-2 we are going to see <b style="mso-bidi-font-weight: normal;">“How to do the TDD of Model Validation”</b></span></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt; text-align: justify;">
- <span style="font-family: Calibri;">Before getting into the business let us have a quick look at how ASP.NET MVC3 does the model validation. Internally when making an Http POST/GET request, MVC3 makes use of a helper class <b style="mso-bidi-font-weight: normal;"><a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validator.aspx"><span style="color: purple;">Validator</span></a></b> located in the namespace <b style="mso-bidi-font-weight: normal;">System.ComponentModel.DataAnnotations.</b> <b style="mso-bidi-font-weight: normal;"><a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validator.aspx"><span style="color: purple;">Validator</span></a></b> can be used to validate the models based on the <b style="mso-bidi-font-weight: normal;"><a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validationattribute.aspx"><span style="color: purple;">ValidationAttribute</span></a></b> attributes associate with the model. After validating MVC3 adds the validation results to the controller’s <b style="mso-bidi-font-weight: normal;">ModelState</b> Property by the <b style="mso-bidi-font-weight: normal;">AddModelError</b> method which in turn sets the<b style="mso-bidi-font-weight: normal;"> ModelState.IsValid</b> property (Refer </span><a href="http://sweettam.blogspot.com/2011/08/test-driving-model-validation-in-aspnet.html"><span style="color: purple; font-family: Calibri;">Part-1</span></a><span style="font-family: Calibri;">). We are actually going to make use of this <b style="mso-bidi-font-weight: normal;">Validator</b> helper class going to test drive the model validation. <span style="mso-spacerun: yes;">&nbsp;</span><span style="mso-spacerun: yes;">&nbsp;</span></span></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt;">
- <span style="font-family: Calibri;">Let us start with a small requirement</span></div>
- <div align="center" class="MsoNormal" style="margin: 0in 0in 10pt; text-align: center;">
- <b style="mso-bidi-font-weight: normal;"><span style="font-family: Calibri;">“Employee name should not be empty”</span></b></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt;">
- <span style="font-family: Calibri;">The corresponding unit test will be like as follows</span></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt;">
- <span style="mso-no-proof: yes;"><shapetype coordsize="21600,21600" filled="f" id="_x0000_t75" o:preferrelative="t" o:spt="75" path="m@4@5l@4@11@9@11@9@5xe" stroked="f"><stroke joinstyle="miter"></stroke><formulas><f eqn="if lineDrawn pixelLineWidth 0"></f><f eqn="sum @0 1 0"></f><f eqn="sum 0 0 @1"></f><f eqn="prod @2 1 2"></f><f eqn="prod @3 21600 pixelWidth"></f><f eqn="prod @3 21600 pixelHeight"></f><f eqn="sum @0 0 1"></f><f eqn="prod @6 1 2"></f><f eqn="prod @7 21600 pixelWidth"></f><f eqn="sum @8 21600 0"></f><f eqn="prod @7 21600 pixelHeight"></f><f eqn="sum @10 21600 0"></f></formulas><path gradientshapeok="t" o:connecttype="rect" o:extrusionok="f"></path><lock aspectratio="t" v:ext="edit"></lock></shapetype></span></div>
- <div class="separator" closure_uid_62zpmf="198" style="clear: both; text-align: center;">
- </div>
+<div>
+<p style="text-align: justify;">
+ In <a href="{% post_url 2011-08-13-test-driving-model-validation-in-aspnet %}">Part-1</a>of this small blog post series, we have explored a way to do the TDD of controller’s responsibility in the context of model validation. In this Part-2 we are going to see <strong>“How to do the TDD of Model Validation”</strong>
+</p>
+
+<p style="text-align: justify;">
+ Before getting into the business let us have a quick look at how ASP.NET MVC3 does the model validation. Internally when making an Http POST/GET request, MVC3 makes use of a helper class <strong><a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validator.aspx">Validator</a></strong> located in the namespace <em>System.ComponentModel.DataAnnotations.</em> Validator can be used to validate the models based on the <strong><a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validationattribute.aspx">ValidationAttribute</a></strong> attributes associate with the model. After validating MVC3 adds the validation results to the controller’s <em>ModelState</em> Property by the <em>AddModelError</em> method which in turn sets the<em> ModelState.IsValid</em> property (Refer <a href="{% post_url 2011-08-13-test-driving-model-validation-in-aspnet %}">Part-1</a>). We are actually going to make use of this <em>Validator</em> helper class going to test drive the model validation. 
+</p>
+
+  <h4>Let us start with a small requirement</h4>
+<div style="text-align: center;">
+ <em>“Employee name should not be empty”</em>
+</div>
+<br />
+ <p>The corresponding unit test will be like as follows</p>
+ 
  <div class="separator" style="clear: both; text-align: center;">
- <a href="http://4.bp.blogspot.com/-3Ql_dP2wJkE/Tku0g78apHI/AAAAAAAAAKw/gV-lTvda50I/s1600/UnitTest1.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="121px" qaa="true" src="http://4.bp.blogspot.com/-3Ql_dP2wJkE/Tku0g78apHI/AAAAAAAAAKw/gV-lTvda50I/s320/UnitTest1.PNG" width="320px" /></a></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt; text-align: justify;">
- <span closure_uid_62zpmf="242" style="font-family: Calibri;">ValidateObject Method determines whether the specified object is valid using the validation context and throws a ValidationException if the object is invalid.</span></div>
- <div class="MsoNormal" closure_uid_62zpmf="244" style="margin: 0in 0in 10pt; text-align: justify;">
- <span style="font-family: Calibri;">Employee Model will be like as follows</span></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt; text-align: justify;">
- <span style="mso-no-proof: yes;"></span></div>
+ <a href="http://4.bp.blogspot.com/-3Ql_dP2wJkE/Tku0g78apHI/AAAAAAAAAKw/gV-lTvda50I/s1600/UnitTest1.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="200px" qaa="true" src="http://4.bp.blogspot.com/-3Ql_dP2wJkE/Tku0g78apHI/AAAAAAAAAKw/gV-lTvda50I/s320/UnitTest1.PNG" width="320px" /></a></div>
+
+
+ <p style="text-align: justify;">ValidateObject Method determines whether the specified object is valid using the validation context and throws a ValidationException if the object is invalid.</p>
+
+
+ <p>Employee Model will be like as follows</p>
+ 
  <div class="separator" style="clear: both; text-align: center;">
  <a href="http://4.bp.blogspot.com/-URfST5ZPMwo/Tku0gsJJAxI/AAAAAAAAAKs/5K0GYH1ObLs/s1600/Emp1.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" qaa="true" src="http://4.bp.blogspot.com/-URfST5ZPMwo/Tku0gsJJAxI/AAAAAAAAAKs/5K0GYH1ObLs/s1600/Emp1.PNG" /></a></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt; text-align: justify;">
- <span style="font-family: Calibri;">When you run the test “EmployeeNameShouldNotBeEmpty”, it will <b style="mso-bidi-font-weight: normal;"><span style="color: red;">Fail</span></b><span style="color: red;"> </span>with the error message “System.ComponentModel.DataAnnotations.ValidationException was expected”. Now it’s time to make it <b style="mso-bidi-font-weight: normal;"><span style="color: #00b050;">Pass. </span></b>Thanks to <b style="mso-bidi-font-weight: normal;">RequiredAttribute, </b>we can make the test the pass without much effort. Just decorate the Name property with the <b style="mso-bidi-font-weight: normal;">[Required]</b> Attribute. That’s it. Now run the test and it will <b style="mso-bidi-font-weight: normal;"><span style="color: #00b050;">Pass.</span></b> As there is no scope for Refactoring, we will be ignoring it.</span></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt; text-align: justify;">
- <br /></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt; text-align: justify;">
- <span style="font-family: Calibri;">Well, we have done the TDD of model validation. Now let’s move onto the next requirement. <span style="mso-spacerun: yes;">&nbsp;</span></span></div>
- <div align="center" class="MsoNormal" style="margin: 0in 0in 10pt; text-align: center;">
- <b style="mso-bidi-font-weight: normal;"><span style="font-family: Calibri;">“Employee age should be greater than 30”</span></b></div>
- <div class="MsoNormal" closure_uid_62zpmf="271" style="margin: 0in 0in 10pt; text-align: justify;">
- <span style="font-family: Calibri;">Let’s write the unit test for this requirement.&nbsp;<b style="mso-bidi-font-weight: normal;"><span style="color: #00b050;"><span style="mso-spacerun: yes;">&nbsp;</span></span></b></span>&nbsp;</div>
+
+<p style="text-align: justify;">
+
+ When you run the test “EmployeeNameShouldNotBeEmpty”, it will <strong><span style="color: red;">Fail</span></strong> with the error message <em>“System.ComponentModel.DataAnnotations.ValidationException was expected”</em>. Now it’s time to make it <strong><span style="color: #00b050;">Pass. </span></strong>Thanks to <em>RequiredAttribute</em> we can make the test the pass without much effort. Just decorate the Name property with the <em>[Required]</em> Attribute. That’s it. Now run the test and it will <strong><span style="color: #00b050;">Pass.</span></strong> As there is no scope for Refactoring, we will be ignoring it.
+</p>
+
+ <p>Well, we have done the TDD of model validation. Now let’s move onto the next requirement. </p>
+ <div style="text-align: center;">
+ <em>“Employee age should be greater than 30”</em>
+</div>
+<br />
+ <p style="text-align: justify;"> 
+ Let’s write the unit test for this requirement.
+ </p>
+ 
  <div class="separator" style="clear: both; text-align: center;">
  <a href="http://3.bp.blogspot.com/-cXpXTstCDr4/Tku0hg4cWDI/AAAAAAAAAK0/hahJBKoWOLI/s1600/UnitTest2.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="83px" qaa="true" src="http://3.bp.blogspot.com/-cXpXTstCDr4/Tku0hg4cWDI/AAAAAAAAAK0/hahJBKoWOLI/s320/UnitTest2.PNG" width="320px" /></a></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt;">
- <span style="font-family: Calibri;">When we run the test, we’d get a failing test with error message “System.ComponentModel.DataAnnotations.ValidationException was expected”</span></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt;">
- <span style="font-family: Calibri;">Like <b style="mso-bidi-font-weight: normal;">RequiredAttribute </b>we don’t have any AgeLimit Attribute to make the test pass. However we can create such kind of CustomAttributes. Another approach would be making use of </span><a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.ivalidatableobject.aspx"><span style="color: purple; font-family: Calibri;">IValiadatableObject</span></a><span style="font-family: Calibri;">. I will be using the latter option in this blog post, if you are interested in creating custom attribute refer this </span><a href="http://www.devtrends.co.uk/blog/the-complete-guide-to-validation-in-asp.net-mvc-3-part-2"><span style="color: purple; font-family: Calibri;">blog</span></a><span style="font-family: Calibri;">. </span></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt;">
- <span style="font-family: Calibri;">Here we go; the modified Employee model will look like as follows </span></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt;">
- <span style="mso-no-proof: yes;"></span></div>
+ 
+ <p>When we run the test, we’d get a failing test with error message “System.ComponentModel.DataAnnotations.ValidationException was expected”</p>
+
+ <p>Like <em>RequiredAttribute</em> we don’t have any AgeLimit Attribute to make the test pass. However we can create such kind of CustomAttributes. Another approach would be making use of <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.ivalidatableobject.aspx"><em>IValiadatableObject</em></a></p>
+
+ <p style="text-align: justify;">I will be using the latter option in this blog post, if you are interested in creating custom attribute refer this <a href="http://www.devtrends.co.uk/blog/the-complete-guide-to-validation-in-asp.net-mvc-3-part-2">blog post</a></p>
+
+ <p>Here we go; the modified Employee model will look like as follows </p>
+
  <div class="separator" style="clear: both; text-align: center;">
  <a href="http://1.bp.blogspot.com/-zAsuau_JXwA/Tku0iUzEgFI/AAAAAAAAAK4/J1t3gYaECmw/s1600/Emp2.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="119px" qaa="true" src="http://1.bp.blogspot.com/-zAsuau_JXwA/Tku0iUzEgFI/AAAAAAAAAK4/J1t3gYaECmw/s320/Emp2.PNG" width="320px" /></a></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt;">
- <span style="font-family: Calibri;">The <b style="mso-bidi-font-weight: normal;">Validator</b> helper class will invoke the Validate method of the model if the model passed to the <b style="mso-bidi-font-weight: normal;">ValidateObject</b> Method implements the <b style="mso-bidi-font-weight: normal;">IValidatableObject</b>.</span></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt;">
- <span style="font-family: Calibri;">Hurrah! Now you will be getting a passing test. We have done the TDD of Model Validation. <span style="mso-spacerun: yes;">&nbsp;</span><span style="mso-spacerun: yes;">&nbsp;</span></span></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt;">
- <b style="mso-bidi-font-weight: normal;"><span style="font-family: Calibri;">Summary</span></b></div>
- <div class="MsoNormal" style="margin: 0in 0in 10pt;">
- <span style="font-family: Calibri;">In the blog posts </span><a href="http://sweettam.blogspot.com/2011/08/test-driving-model-validation-in-aspnet.html"><span style="color: purple; font-family: Calibri;">Part-1</span></a><span style="font-family: Calibri;"> and Part-2 we have seen how to test drive the model validation in ASP.NET MVC3. The bottom-line is we should not combine the unit tests of model validation with the controller’s unit tests and both should be kept separate. You can download the source code which we’ve seen in this blog post series from </span><a href="http://www.box.net/shared/73e9m5d2ufyi6pazfq4j"><span style="font-family: Calibri;">here</span></a><span style="font-family: Calibri;">. <span style="mso-spacerun: yes;">&nbsp;</span><span style="mso-spacerun: yes;">&nbsp;</span></span></div>
+
+ <p>
+ The <em>Validator</em> helper class will invoke the Validate method of the model if the model passed to the <em>ValidateObject</em> Method implements the <em>IValidatableObject</em>.</p>
+
+ <p>Hurrah! Now you will be getting a passing test. We have done the TDD of Model Validation. </p>
+ <h3>Summary</h3>
+ <p>The bottom-line is we should not combine the unit tests of model validation with the controller’s unit tests and both should be kept separate. You can download the source code which we’ve seen in this blog post series from </span><a href="http://www.box.net/shared/73e9m5d2ufyi6pazfq4j"><span style="font-family: Calibri;">here</span></a></p>
  </div>
  </div>
