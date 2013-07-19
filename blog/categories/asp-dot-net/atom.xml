@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ASP.NET | Tamizh's Thoughts]]></title>
+  <link href="http://tamizhvendan.github.com/blog/categories/asp-dot-net/atom.xml" rel="self"/>
+  <link href="http://tamizhvendan.github.com/"/>
+  <updated>2013-07-19T15:25:30+05:30</updated>
+  <id>http://tamizhvendan.github.com/</id>
+  <author>
+    <name><![CDATA[Tamizhvendan S]]></name>
+    <email><![CDATA[tamizh88@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Ajax Update master page from content Page]]></title>
+    <link href="http://tamizhvendan.github.com/blog/2011/02/23/ajax-update-master-page-from-content/"/>
+    <updated>2011-02-23T00:00:00+05:30</updated>
+    <id>http://tamizhvendan.github.com/blog/2011/02/23/ajax-update-master-page-from-content</id>
+    <content type="html"><![CDATA[<div class='post'>
+<div>In this blog post we are going to see how can we update the master page from content page using ajax updatepanel in <a href="http://www.amazon.com/Beginning-ASP-NET-VB-Wrox-Programmer/dp/0470502215?ie=UTF8&amp;tag=bor0b-20&amp;link_code=btl&amp;camp=213689&amp;creative=392969" target="_blank">ASP.NET</a>.<br />
+    The sample website we are going to build will have a content page which allows to change the header of the website(which is present in master page) via Ajax. 
+    <p><img height="169px" src="http://codeasp.net/Assets/Uploaded-CMS-Files/c15554a1-7e4e-498b-9c5e-a1365cf4643aAjaxifyMasterPage1.PNG" width="358px" /><img height="143px" src="http://codeasp.net/Assets/Uploaded-CMS-Files/8feb0ea9-adf4-4bc6-99ae-4c9b28ed1cc1AjaxifyMasterPage2.PNG" width="334px" /></p>
+    <br />
+    <p>The tasks involved in creating this website are as follows:
+        <ul>
+        <li>Create an updatepanel in masterpage which holds the website header.</li>
+        <li>Create a method in MasterPage codebehind which changes the website header.</li>
+        <li>Create the content page with master page reference and an update panel which holds controls to triggers the header change.</li>
+        <li>Call the MasterPage method from content page.</li>
+        </ul>
+    </p>
+    <p><strong>1. Create an updatepanel in masterpage which holds the website header.</strong><br />
+        <div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;title&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;h1&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;asp:UpdatePanel</span> <span class="na">ID=</span><span class="s">&quot;UpdatePanelWebsiteHeader&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span><span class="na">ChildrenAsTriggers=</span><span class="s">&quot;false&quot;</span> <span class="na">UpdateMode=</span><span class="s">&quot;Conditional&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;ContentTemplate&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;asp:Label</span> <span class="na">ID=</span><span class="s">&quot;lblWebsiteHeader&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">Text=</span><span class="s">&quot;Label&quot;</span><span class="nt">&gt;</span>My ASP.NET Application<span class="nt">&lt;/asp:Label&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/ContentTemplate&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/asp:UpdatePanel&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/h1&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+    <br />
+    Make Sure the two properties of UpdatePanel <strong>"ChildrenAsTriggers"</strong> is set to false and <strong>"UpdateMode"</strong> is set to conditional, to prevent the unneccessary updation of updatepanel from its child controls. <br />
+    </p><p>
+    <strong>2. Create a method in MasterPage codebehind which changes the website header.</strong><br /><br />
+    <div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">void</span> <span class="nf">ChangeWebsiteHeader</span><span class="p">(</span><span class="kt">string</span> <span class="n">newHeader</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">lblWebsiteHeader</span><span class="p">.</span><span class="n">Text</span> <span class="p">=</span> <span class="n">newHeader</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">//Calling the Update method of UpdatePanel will trigger the Updatepanel</span>
+</span><span class='line'>    <span class="n">UpdatePanelWebsiteHeader</span><span class="p">.</span><span class="n">Update</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+    <br />
+    <strong>3. Create the content page with master page reference and an update panel which holds controls to triggers the header change.</strong><br />
+<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;%@ Page Title="Home Page" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true"CodeFile="Default.aspx.cs" Inherits="_Default" %>
+</span><span class='line'>&lt;%@ MasterType VirtualPath="~/Site.master" %></span></code></pre></td></tr></table></div></figure></notextile></div>
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;asp:UpdatePanel</span> <span class="na">ID=</span><span class="s">&quot;UpdatePanelChangeHeader&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">UpdateMode=</span><span class="s">&quot;Conditional&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ContentTemplate&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;p&gt;</span>Enter the Website Header: <span class="nt">&lt;asp:TextBox</span> <span class="na">ID=</span><span class="s">&quot;txtHeader&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="nt">/&gt;</span> <span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;asp:Button</span> <span class="na">ID=</span><span class="s">&quot;btnChangeHeader&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">Text=</span><span class="s">&quot;Change Header&quot;</span> <span class="na">onclick=</span><span class="s">&quot;btnChangeHeader_Click&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/ContentTemplate&gt;</span>
+</span><span class='line'><span class="nt">&lt;/asp:UpdatePanel&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+        <br /><strong>4. Call the MasterPage method from content page.</strong><br />
+    <div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">protected</span> <span class="k">void</span> <span class="nf">btnChangeHeader_Click</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">Master</span><span class="p">.</span><span class="n">ChangeWebsiteHeader</span><span class="p">(</span><span class="n">Server</span><span class="p">.</span><span class="n">HtmlEncode</span><span class="p">(</span><span class="n">txtHeader</span><span class="p">.</span><span class="n">Text</span><span class="p">));</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+        <br /><strong>Summary:</strong><br />In this blog we have seen how can we update the master page from the content page using ajax update panel. You can download the source code from <a href="http://www.box.net/shared/gpa9dlo668">here</a><br /> <br/>
+
+]]></content>
+  </entry>
+  
+</feed>

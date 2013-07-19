@@ -1,0 +1,1209 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Tamizh's Thoughts</title>
+  <meta name="author" content="Tamizhvendan S">
+
+  
+  <meta name="description" content="In this blog post we are going to explore how to create the data access layer as aclass library using Entity Framework 4.0. By defining the data &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://tamizhvendan.github.com/blog/page/3">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="http://feeds.feedburner.com/tamizhvendan-blog" rel="alternate" title="Tamizh's Thoughts" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tamizh's Thoughts</a></h1>
+  
+    <h2>Passionate, Pragmatic, Polyglot programmer working hard and smart to be become a better programmer.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="http://feeds.feedburner.com/tamizhvendan-blog" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:tamizhvendan.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/03/25/entity-framework-40-class-library-part/">Entity Framework 4.0 - Class Library - Part 1</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-03-25T00:00:00+05:30" pubdate data-updated="true">Mar 25<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/03/25/entity-framework-40-class-library-part/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div>
+	<p>In this blog post we are going to explore how to create the data access layer as aclass library using Entity Framework 4.0. By defining the data access layer asclass library, you can reuse it across many applications just by adding areference to the class library. In my next blog post, we&#8217;ll explore how to consumethe library in an application. </p>
+	<p>Entity Framework 4.0 enables the developer toconcentrate on the business logic and business objects without bothering how ithas been manipulated at the database level. You can find a very good tutorial onEntity Framework <a href="http://www.dotnetcurry.com/ShowArticle.aspx?ID=599">here</a> to get started.This blog post uses a sample database named &#8220;HRD&#8221; which has two tables, Employee and Department. </p>
+	<h4>Step 1: Create a Class Library</h4>Create a new class library project with the name &#8220;HRD.DataAccess&#8221; and click &#8220;Ok&#8221;. After creating a new project delete the &#8220;Class1.cs&#8221; which is created by default.<a href="http://4.bp.blogspot.com/-XMny1Q1pWmY/TYyhEuzjS9I/AAAAAAAAAEo/nkXolA-lVW4/s1600/1.Class-Library-Creation.PNG" onblur="function anonymous() { try {parent.deselectBloggerImageGracefully();} catch(e) {} }"><img alt="" border="0" id="BLOGGER_PHOTO_ID_5588018340315745234" src="http://4.bp.blogspot.com/-XMny1Q1pWmY/TYyhEuzjS9I/AAAAAAAAAEo/nkXolA-lVW4/s400/1.Class-Library-Creation.PNG"/></a>
+	<h4>Step 2: Create the Entity class using the entity framework</h4> <p>Right click on the project name &#8220;HRD.DataAccess&#8221; and select &#8220;Add -&gt; New item&#8221;.Select &#8220;Data&#8221; under installed templates and then select &#8220;ADO.NET Data Entity Model&#8221;. Type the name as &#8220;HrdModel.edmx&#8221; and click &#8220;Add&#8221;. </p> <a href="http://2.bp.blogspot.com/-41YJhQQtdnI/TYyhbxZQhiI/AAAAAAAAAEw/_fsYr5hRBxg/s1600/2.%2BEdmx-File-Creation.PNG" onblur="function anonymous() { try {parent.deselectBloggerImageGracefully();} catch(e) {} }"><img alt="" border="0" id="BLOGGER_PHOTO_ID_5588018736147760674" src="http://2.bp.blogspot.com/-41YJhQQtdnI/TYyhbxZQhiI/AAAAAAAAAEw/_fsYr5hRBxg/s400/2.%2BEdmx-File-Creation.PNG" /> </a> <p>In the Entity Data Model Wizard select &#8220;Generate from database&#8221; and click &#8220;Next&#8221;<a href="http://1.bp.blogspot.com/-3qYGN6L6-w0/TYyhjWJFO4I/AAAAAAAAAE4/UKHqzYE3ZAc/s1600/3.%2BEntity%2BData%2BModel%2BWizard.PNG" onblur="function anonymous() { try {parent.deselectBloggerImageGracefully();} catch(e) {} }"><img alt="" border="0" id="BLOGGER_PHOTO_ID_5588018866271107970" src="http://1.bp.blogspot.com/-3qYGN6L6-w0/TYyhjWJFO4I/AAAAAAAAAE4/UKHqzYE3ZAc/s400/3.%2BEntity%2BData%2BModel%2BWizard.PNG"/></a></p>In the next step select the database name &#8220;PCName\sqlexpress.HRD.dbo&#8221; and select &#8220;Next&#8221;<a href="http://1.bp.blogspot.com/-4IToYmLAwxs/TYyiWHk6YhI/AAAAAAAAAFY/H9DSizx7ah8/s1600/4.%2BEntity%2BData%2BModel%2BWizard-DatabaseSelection.PNG"><img alt="" border="0" id="BLOGGER_PHOTO_ID_5588019738534634002" src="http://1.bp.blogspot.com/-4IToYmLAwxs/TYyiWHk6YhI/AAAAAAAAAFY/H9DSizx7ah8/s400/4.%2BEntity%2BData%2BModel%2BWizard-DatabaseSelection.PNG"/></a>
+	<p>In the next step select the tables names &#8220;Department&#8221; &amp; &#8220;Employee&#8221; and click &#8220;Finish&#8221;<a href="http://4.bp.blogspot.com/-P0ACj8TAGs8/TYyiZdQ0ZjI/AAAAAAAAAFg/PxaLeJ3UAHM/s1600/5.%2BEntity%2BData%2BModel%2BWizard-TableSelection.PNG"><img alt="" border="0" id="BLOGGER_PHOTO_ID_5588019795895543346" src="http://4.bp.blogspot.com/-P0ACj8TAGs8/TYyiZdQ0ZjI/AAAAAAAAAFg/PxaLeJ3UAHM/s400/5.%2BEntity%2BData%2BModel%2BWizard-TableSelection.PNG" /></a> </p> Now we have created the entity model which represent the Object/Relation mapping<a href="http://4.bp.blogspot.com/-_yfxEzDJo8A/TYyib8Z-pdI/AAAAAAAAAFo/C5m-5SqD4Io/s1600/6.%2BEDMX%2BSuccessful%2BCreation.PNG"><img alt="" border="0" id="BLOGGER_PHOTO_ID_5588019838615201234" src="http://4.bp.blogspot.com/-_yfxEzDJo8A/TYyib8Z-pdI/AAAAAAAAAFo/C5m-5SqD4Io/s400/6.%2BEDMX%2BSuccessful%2BCreation.PNG" style="cursor: pointer; height: 289px; width: 400px;" /></a> <h4>Step 3: Building the class library</h4><ol><li>Select &#8220;Build-&gt;Configuration Manager&#8221;</li><li>Change the Configuration of the Project &#8220;HRD.DataAccess&#8221; to &#8220;Release&#8221;. By default it is &#8220;Debug&#8221;</li><li>Click &#8220;Close&#8221;</li><li>Select &#8220;Build-&gt;Build HRD.DataAccess&#8221;</li></ol>Thats it!!. Now we have the DataAccess Library ready!! We can reuse it across different .Net Applications 
+	<p>
+	<h4>Summary</h4>In this blog we have explored the way of creating the DataAccess class library using entity framework.in my next blog, we&#8217;d explore on how to consume the data access library in an application. 
+</h4>
+</div></div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/02/23/ajax-update-master-page-from-content/">Ajax Update Master Page From Content Page</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-02-23T00:00:00+05:30" pubdate data-updated="true">Feb 23<span>rd</span>, 2011</time>
+        
+         | <a href="/blog/2011/02/23/ajax-update-master-page-from-content/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div>In this blog post we are going to see how can we update the master page from content page using ajax updatepanel in <a href="http://www.amazon.com/Beginning-ASP-NET-VB-Wrox-Programmer/dp/0470502215?ie=UTF8&amp;tag=bor0b-20&amp;link_code=btl&amp;camp=213689&amp;creative=392969" target="_blank">ASP.NET</a>.<br />
+	The sample website we are going to build will have a content page which allows to change the header of the website(which is present in master page) via Ajax. 
+	<p><img height="169px" src="http://codeasp.net/Assets/Uploaded-CMS-Files/c15554a1-7e4e-498b-9c5e-a1365cf4643aAjaxifyMasterPage1.PNG" width="358px" /><img height="143px" src="http://codeasp.net/Assets/Uploaded-CMS-Files/8feb0ea9-adf4-4bc6-99ae-4c9b28ed1cc1AjaxifyMasterPage2.PNG" width="334px" /></p>
+	<br />
+	<p>The tasks involved in creating this website are as follows:
+		<ul>
+		<li>Create an updatepanel in masterpage which holds the website header.</li>
+		<li>Create a method in MasterPage codebehind which changes the website header.</li>
+		<li>Create the content page with master page reference and an update panel which holds controls to triggers the header change.</li>
+		<li>Call the MasterPage method from content page.</li>
+		</ul>
+	</p>
+	<p><strong>1. Create an updatepanel in masterpage which holds the website header.</strong><br />
+		<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;title&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;h1&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;asp:UpdatePanel</span> <span class="na">ID=</span><span class="s">&quot;UpdatePanelWebsiteHeader&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span><span class="na">ChildrenAsTriggers=</span><span class="s">&quot;false&quot;</span> <span class="na">UpdateMode=</span><span class="s">&quot;Conditional&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;ContentTemplate&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;asp:Label</span> <span class="na">ID=</span><span class="s">&quot;lblWebsiteHeader&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">Text=</span><span class="s">&quot;Label&quot;</span><span class="nt">&gt;</span>My ASP.NET Application<span class="nt">&lt;/asp:Label&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/ContentTemplate&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/asp:UpdatePanel&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/h1&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>		
+</span></code></pre></td></tr></table></div></figure>
+	<br />
+	Make Sure the two properties of UpdatePanel <strong>&#8220;ChildrenAsTriggers&#8221;</strong> is set to false and <strong>&#8220;UpdateMode&#8221;</strong> is set to conditional, to prevent the unneccessary updation of updatepanel from its child controls. <br />
+	</p><p>
+	<strong>2. Create a method in MasterPage codebehind which changes the website header.</strong><br /><br />
+	<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">void</span> <span class="nf">ChangeWebsiteHeader</span><span class="p">(</span><span class="kt">string</span> <span class="n">newHeader</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">lblWebsiteHeader</span><span class="p">.</span><span class="n">Text</span> <span class="p">=</span> <span class="n">newHeader</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">//Calling the Update method of UpdatePanel will trigger the Updatepanel</span>
+</span><span class='line'>    <span class="n">UpdatePanelWebsiteHeader</span><span class="p">.</span><span class="n">Update</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>	
+</span></code></pre></td></tr></table></div></figure>
+	<br />
+	<strong>3. Create the content page with master page reference and an update panel which holds controls to triggers the header change.</strong><br />
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;%@ Page Title="Home Page" Language="C#" MasterPageFile="~/Site.master" AutoEventWireup="true"CodeFile="Default.aspx.cs" Inherits="_Default" %>
+</span><span class='line'>&lt;%@ MasterType VirtualPath="~/Site.master" %></span></code></pre></td></tr></table></div></figure>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;asp:UpdatePanel</span> <span class="na">ID=</span><span class="s">&quot;UpdatePanelChangeHeader&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">UpdateMode=</span><span class="s">&quot;Conditional&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ContentTemplate&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;p&gt;</span>Enter the Website Header: <span class="nt">&lt;asp:TextBox</span> <span class="na">ID=</span><span class="s">&quot;txtHeader&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="nt">/&gt;</span> <span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;asp:Button</span> <span class="na">ID=</span><span class="s">&quot;btnChangeHeader&quot;</span> <span class="na">runat=</span><span class="s">&quot;server&quot;</span> <span class="na">Text=</span><span class="s">&quot;Change Header&quot;</span> <span class="na">onclick=</span><span class="s">&quot;btnChangeHeader_Click&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/ContentTemplate&gt;</span>
+</span><span class='line'><span class="nt">&lt;/asp:UpdatePanel&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+		<br /><strong>4. Call the MasterPage method from content page.</strong><br />
+	<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">protected</span> <span class="k">void</span> <span class="nf">btnChangeHeader_Click</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">Master</span><span class="p">.</span><span class="n">ChangeWebsiteHeader</span><span class="p">(</span><span class="n">Server</span><span class="p">.</span><span class="n">HtmlEncode</span><span class="p">(</span><span class="n">txtHeader</span><span class="p">.</span><span class="n">Text</span><span class="p">));</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>	
+</span></code></pre></td></tr></table></div></figure>
+		<br /><strong>Summary:</strong><br />In this blog we have seen how can we update the master page from the content page using ajax update panel. You can download the source code from <a href="http://www.box.net/shared/gpa9dlo668">here</a><br /> <br/></div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/02/10/in-this-blog-we-are-going-to-see-how/">DropDownList Manipulation Using jQuery</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-02-10T00:00:00+05:30" pubdate data-updated="true">Feb 10<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/02/10/in-this-blog-we-are-going-to-see-how/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div>In this blog post we are going to see how can we manipulate a dropdownlist using <a href="http://www.amazon.com/jQuery-Action-Second-Bear-Bibeault/dp/1935182323?ie=UTF8&amp;tag=bor0b-20&amp;link_code=btl&amp;camp=213689&amp;creative=392969" target="_blank">jQuery</a><img alt="" border="0" height="1px" src="http://www.assoc-amazon.com/e/ir?t=bor0b-20&amp;l=btl&amp;camp=213689&amp;creative=392969&amp;o=1&amp;a=1935182323" style="border-bottom: medium none; border-left: medium none; border-right: medium none; border-top: medium none; margin: 0px; padding-bottom: 0px! important; padding-left: 0px! important; padding-right: 0px! important; padding-top: 0px! important;" width="1px" />. Here is the brief overview what we are exactly going to do.<br /><br />1. Dynamically populating the dropdownlist<br />2. Handling the item change event of a dropdownlist<br />3. Getting the value and the text of the dropdownlist selected item<br />4. Programmatically setting the item of the dropdownlist<br /><br />1. Dynamically populating the dropdownlist<br /><br />jQuery Code:<br />
+	<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">function</span> <span class="nx">loadDropDownList</span><span class="p">(</span><span class="nx">collection</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">$</span><span class="p">.</span><span class="nx">each</span><span class="p">(</span><span class="nx">collection</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">index</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="kd">var</span> <span class="nx">listItem</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;&lt;option&gt;&lt;/option&gt;&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">(</span><span class="nx">index</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+</span><span class='line'>            <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#countries&quot;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="nx">listItem</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">myCollection</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;IN&#39;</span><span class="o">:</span> <span class="s1">&#39;India&#39;</span><span class="p">,</span><span class="s1">&#39;AUS&#39;</span><span class="o">:</span> <span class="s1">&#39;Australia&#39;</span><span class="p">,</span><span class="s1">&#39;ENG&#39;</span><span class="o">:</span> <span class="s1">&#39;England&#39;</span><span class="p">};</span>
+</span><span class='line'>    <span class="nx">loadDropDownList</span><span class="p">(</span><span class="nx">myCollection</span><span class="p">);</span>
+</span><span class='line'><span class="p">})</span>
+</span><span class='line'>	
+</span></code></pre></td></tr></table></div></figure>
+	<br />HTML<br />
+	<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>Countries: <span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;countries&quot;</span><span class="nt">&gt;&lt;/select&gt;</span>
+</span><span class='line'>	
+</span></code></pre></td></tr></table></div></figure>
+	<br />Code Explained:<br /><br />The function loadDropDownList will take a collection (a key-value pair array) and populate the dropdownlist “countries”. “$.each” is a jQuery function which iterates the array item by item and calls the “function(index,value)” for each item where index would be the item’s key and value would be the item’s value. Then the list item html markup is created for the list item and appended to the dropdownlist<br /><br />2. Handling the item change event of a dropdownlist<br /><br /><br />jQueryCode:<br />
+	<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#countries&quot;</span><span class="p">).</span><span class="nx">change</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// Place your code here</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>		
+</span><span class='line'>	
+</span></code></pre></td></tr></table></div></figure>
+	<br />Code Explained:<br /><br />The jQuery API offers lot of useful functions to operate with the html form elements. One of such function is “change()” which will called whenever the item value is get changed.<br /><br />3. Getting the value and the text of the dropdownlist selected item<br /><br />jQueryCode:<br /><br />
+
+	<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#countries&quot;</span><span class="p">).</span><span class="nx">change</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    	<span class="kd">var</span> <span class="nx">selectedValue</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#countries&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">();</span>
+</span><span class='line'>        <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#countryValue&quot;</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="nx">selectedValue</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#countryText&quot;</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#countries &gt; option[value=&#39;&quot;</span> <span class="o">+</span> <span class="nx">selectedValue</span> <span class="o">+</span> <span class="s2">&quot;&#39;]&quot;</span><span class="p">).</span><span class="nx">html</span><span class="p">());</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>	
+</span></code></pre></td></tr></table></div></figure>
+
+	<br />HTML:<br />
+	<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>Selected Country’s Text: <span class="nt">&lt;span</span> <span class="na">id=</span><span class="s">&quot;countryText&quot;</span><span class="nt">&gt;&lt;/span&gt;</span> <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>Selected Country’s Value:  <span class="nt">&lt;span</span> <span class="na">id=</span><span class="s">&quot;countryValue&quot;</span><span class="nt">&gt;&lt;/span&gt;&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>	
+</span></code></pre></td></tr></table></div></figure>
+	<br />Code Explained:<br /><br />The jQuery code mentioned above will set the two span labels “countryValue” and “countryText” with the value and text of the selected item in the “countries” dropdownlist, when we select an item in the “countries” dropdownlist. The jQuery function “val()” enable us to find out the value of a form element, in our case we have utilized it to get the value of the “countries” dropdownlist. To get the selected item’s text we have to use the child and attribute selector together as a selector. “#countries &gt; option[value=&#8217;IN&#8217;]” – will selects all option child elements(with appropriate value) of item with the id “countries”. “html()” retrieves the html of the selected element. “text(value)” will set the text of the selector.<br /><br />4. Programmatically setting the item of the dropdownlist<br /><br />jQueryCode:<br />
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#btnIn&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#countries&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">(</span><span class="s1">&#39;IN&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#btnEng&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#countries&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">(</span><span class="s1">&#39;ENG&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#btnAus&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#countries&quot;</span><span class="p">).</span><span class="nx">val</span><span class="p">(</span><span class="s1">&#39;AUS&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+<h2>Demo</h2>
+<iframe width="100%" height="300" src="http://jsfiddle.net/uE78v/2/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/02/07/creating-webpage-like-igoogle-using/">Creating a Webpage Like iGoogle Using jQuery</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-02-07T00:00:00+05:30" pubdate data-updated="true">Feb 7<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/02/07/creating-webpage-like-igoogle-using/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div dir="ltr" style="text-align: left;" trbidi="on">Would you like to create a webpage like iGoogle (www.google.co.in/ig)??<br /><br />This blog post is for you!!<br /><br />I hope you are aware of the following stuffs which are the building blocks of this blog post.<br />1.<a href="http://www.amazon.com/Head-First-HTML-CSS-XHTML/dp/059610197X?ie=UTF8&amp;tag=bor0b-20&amp;link_code=btl&amp;camp=213689&amp;creative=392969" target="_blank">HTML </a><img alt="" border="0" height="1" src="http://www.assoc-amazon.com/e/ir?t=bor0b-20&amp;l=btl&amp;camp=213689&amp;creative=392969&amp;o=1&amp;a=059610197X" style="border: none !important; margin: 0px !important; padding: 0px !important;" width="1" /><br />2.<a href="http://www.amazon.com/CSS-Missing-David-Sawyer-McFarland/dp/0596802447?ie=UTF8&amp;tag=bor0b-20&amp;link_code=btl&amp;camp=213689&amp;creative=392969" target="_blank">CSS</a><img alt="" border="0" height="1" src="http://www.assoc-amazon.com/e/ir?t=bor0b-20&amp;l=btl&amp;camp=213689&amp;creative=392969&amp;o=1&amp;a=0596802447" style="border: none !important; margin: 0px !important; padding: 0px !important;" width="1" /> <br />3.<a href="http://www.amazon.com/jQuery-Novice-Ninja-Earle-Castledine/dp/0980576857?ie=UTF8&amp;tag=bor0b-20&amp;link_code=btl&amp;camp=213689&amp;creative=392969" target="_blank">jQuery</a><img alt="" border="0" height="1" src="http://www.assoc-amazon.com/e/ir?t=bor0b-20&amp;l=btl&amp;camp=213689&amp;creative=392969&amp;o=1&amp;a=0980576857" style="border: none !important; margin: 0px !important; padding: 0px !important;" width="1" /> <br /><br />Let us design the page using “Divide and Conquer” Approach. The tasks involved are<br />1.Defining the webpage layout using HTML<br />2.Style the webpage and Widgets(Sample iGoogle Mock up Widgets) using CSS<br />3.Add the drag and drop functionality using jQuery.<br /><br /><h3>Task 1: Defining the webpage layout using HTML</h3><br />The HTML is very straight forward. Entire webpage contents have been placed inside a div with the id “iGoogle”. Then each column (iGoogle uses three column layout) is defined by a div element with the id representing the corresponding columns. These columns act as a placeholder for Widgets. Each widget defined as a div element which contains two div elements inside it which represents the header and the body of the Widgets<br /><br />
+	<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;column1&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;Widget&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;WidgetHeader PurpleWidgetHeader&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>            Widget 1<span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;WidgetBody&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;Widget&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;WidgetHeader GreenWidgetHeader&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>            Widget 2<span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;WidgetBody&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;Widget&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;WidgetHeader GrayWidgetHeader&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>            Widget 3<span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;WidgetBody&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;column2&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;Widget&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;WidgetHeader GrayWidgetHeader&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>            Widget 4<span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;WidgetBody&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;column3&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;Widget&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;WidgetHeader GreenWidgetHeader&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>            Widget 5<span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;WidgetBody&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;Widget&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;WidgetHeader GrayWidgetHeader&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>            Widget 6<span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;WidgetBody&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;br</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span><span class='line'>	
+</span><span class='line'>	
+</span></code></pre></td></tr></table></div></figure>
+
+	<br /><br /><h3>Task 2: Style the webpage and widgets</h3>            Now we have the HTML Layout ready. Our next task would be applying style to the webpage and the widgets using CSS.<br />
+	
+	<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="c">/* Entire Page has been divided into 3Columns. Note: iGoogle Page has 3 columns */</span>
+</span><span class='line'><span class="nf">#column1</span><span class="o">,</span> <span class="nf">#column2</span><span class="o">,</span> <span class="nf">#column3</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">display</span><span class="o">:</span> <span class="k">inline</span><span class="o">-</span><span class="k">block</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">float</span><span class="o">:</span> <span class="k">left</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">width</span><span class="o">:</span> <span class="m">33</span><span class="o">%</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">height</span><span class="o">:</span> <span class="k">auto</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">text-align</span><span class="o">:</span> <span class="k">center</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">padding-bottom</span><span class="o">:</span> <span class="m">100px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c">/* Css Classes for Entire Widget */</span>
+</span><span class='line'><span class="nc">.Widget</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">margin</span><span class="o">:</span> <span class="m">10px</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">margin-left</span><span class="o">:</span> <span class="k">auto</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">margin-right</span><span class="o">:</span> <span class="k">auto</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">width</span><span class="o">:</span> <span class="m">95</span><span class="o">%</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">min-height</span><span class="o">:</span> <span class="m">200px</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">border</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="n">Black</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c">/* Css Classes for Widget Headers */</span>
+</span><span class='line'><span class="nc">.WidgetHeader</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">height</span><span class="o">:</span> <span class="m">25px</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">cursor</span><span class="o">:</span> <span class="n">move</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">text-align</span><span class="o">:</span> <span class="k">left</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">padding-left</span><span class="o">:</span> <span class="m">3px</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">color</span><span class="o">:</span> <span class="n">White</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">font-weight</span><span class="o">:</span> <span class="k">bold</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nc">.GreenWidgetHeader</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">background-color</span><span class="o">:</span> <span class="n">Green</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nc">.GrayWidgetHeader</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">background-color</span><span class="o">:</span> <span class="n">Gray</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nc">.PurpleWidgetHeader</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">background-color</span><span class="o">:</span> <span class="n">Purple</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c">/* Css Classes for Widget Body */</span>
+</span><span class='line'><span class="nc">.WidgetBody</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">min-height</span><span class="o">:</span> <span class="m">175px</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">height</span><span class="o">:</span> <span class="k">auto</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">background</span><span class="o">:</span> <span class="m">#F0F0F0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c">/* Placeholder while dragging the widget using jQuery*/</span>
+</span><span class='line'><span class="nc">.ui-sortable-placeholder</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">border</span><span class="o">:</span> <span class="m">1px</span> <span class="k">dashed</span> <span class="nb">black</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">visibility</span><span class="o">:</span> <span class="k">visible</span> <span class="cp">!important</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">height</span><span class="o">:</span> <span class="m">50px</span> <span class="cp">!important</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nc">.ui-sortable-placeholder</span> <span class="o">*</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">visibility</span><span class="o">:</span> <span class="k">hidden</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nc">.footer</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">clear</span><span class="o">:</span> <span class="k">both</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">display</span><span class="o">:</span> <span class="k">block</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">position</span><span class="o">:</span> <span class="k">absolute</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">color</span><span class="o">:</span> <span class="n">Green</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">bottom</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">right</span><span class="o">:</span> <span class="m">5px</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+		<br /><h3>Task 3:  Add the drag and drop functionality using jQuery</h3>jQuery offers a rich set of functionality which can be implemented by less lines of coding. With jQuery you can “write less and do more”.  All you need to refer the jQuery API files in your javascript and make use of the functionality it provides. To implement the drag and drop functionality we need the following jQuery library files which can be downloaded from the locations mentioned in the “src” attribute<br />
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js&quot;</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://jqueryui.com/ui/jquery.ui.core.js&quot;</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://jqueryui.com/ui/jquery.ui.widget.js&quot;</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://jqueryui.com/ui/jquery.ui.mouse.js&quot;</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://jqueryui.com/ui/jquery.ui.sortable.js&quot;</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+	<p>Now we have the necessary jQuery libraries to implement the drag and drop functionality and all set for implementing the drag and drop support. Here is the code part which implements the drag and drop functionality.</p>
+
+	<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#column1,#column2,#column3&quot;</span><span class="p">).</span><span class="nx">sortable</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">connectWith</span><span class="o">:</span> <span class="s2">&quot;#column1,#column2,#column3&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">handle</span><span class="o">:</span> <span class="s1">&#39;.WidgetHeader&#39;</span><span class="p">,</span> <span class="nx">opacity</span><span class="o">:</span> <span class="mf">0.6</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#column1,#column2,#column3&quot;</span><span class="p">).</span><span class="nx">disableSelection</span><span class="p">();</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>	
+</span></code></pre></td></tr></table></div></figure>
+
+	<p>Yes!! That’s it!! Just three function calls and seven lines of coding!! Now you can drag and drop the widgets and play!!  </p>
+
+	<p>Well, let me explain the jQuery code</p>
+	
+	<p>The jQuery UI Sortable plugin makes selected elements sortable by dragging with the mouse. Here in our case the selected elements refer to “column1, column2, colum3” which are the placeholders of the widgets. This sortable plugin has many optional arguments which define how drag and drop should be done. </p>
+	<p>“connectWith” option allows drag and drop between the columns. i.e., Elements (Widgets in our case) inside the column1 or column2 or column3 can be dragged and dropped on column1 or column2 or column3. 
+	</p>
+	<p>“handle” option specifies the element which can be used to drag the widget between the columns. “opacity” option defines the transparency of the widget while dragging.  The “disableSelection()” function disable text selection in a widget which often occur while dragging a mouse across a widget. Reference: http://docs.jquery.com/UI/Sortable</p>
+
+	<h5>Summary:</h5>To keep the blog post simple, I didn’t implement the persistence of the widget positions. So widgets should not retain its positions when you refresh the page. You can see the source code of this blog post <a href="https://gist.github.com/3632472">here</a></div></div></div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/01/07/programmatic-solution-for-real-time/">Programmatic Solution for a Real Time Numerology Belief</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-01-07T00:00:00+05:30" pubdate data-updated="true">Jan 7<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/01/07/programmatic-solution-for-real-time/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div>Three years back, I got a call from one of my friend. During the call he conveyed that he bought a new motor bike and asked my help to get the registration number for his motorbike. You may ponder how I am going to help to him in this regard. <br />Actually he was looking for an exclusive four digit registration number for his motor vehicle based on numerology with the following conditions.<br />1. The recursive sum of all the four digits should be 1.<br />2. Four digits of the number should be in ascending order. i.e., First number should be less than second, second less than third and third less than fourth.<br /><br />To be honest, I was puzzled when he stated the above conditions. I asked him to give some time to find out those exclusive numbers. When I thought of this problem, I felt why didn’t automate this task by writing a program!! Hence this blog post!!<br /><br />I usually do coding by divide and conquer approach. i.e., Split the entire problem into small logical units, and then integrate those small logical units to create the final one. Here in this case the following are the logical units.<br />1. Module to find those exclusive vehicle registration numbers.<br />2. Module to find the recursive sum of a number<br />3. Module to check whether the digits of the given number are in ascending order are not.<br /><br />When you look sharper at the logical unit 2, it can be divided further into a small logical unit.<br />1. Module to find those exclusive vehicle registration numbers.<br />2. Module to find the recursive sum of digits of a number<br />a. Module to find the sum of digits of a number<br />3. Module to check whether the digits of the given number are in ascending order are not.<br /><br />That’s it. All things were nicely setup to create a program which solves my friend’s vehicle registration number numerology problem. Still one thing is missing the logical flow of program. Before sitting in front of the system and start coding, It is highly recommended to manually work out the program logic in a paper. If you follow this approach, you can develop the program with free of bugs :P So What is the logic to solve this problem ??<br /><br />Here is the logic!!<br />1. Traverse from 1000 to 9999<br />2. For each no check whether the digits are in ascending order.If the digits are in ascending order, then check whether the recursive sum of the digits of the number is 1 or not. If the recursive sum is 1, My friend got the solution for his problem.<br /><br />
+<figure class='code'><figcaption><span> (Numeralogy.cs)</span> <a href='/downloads/code/Numeralogy.cs'>download</a></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">using</span> <span class="nn">System</span><span class="p">;</span>
+</span><span class='line'><span class="k">using</span> <span class="nn">System.Collections.Generic</span><span class="p">;</span>
+</span><span class='line'><span class="k">using</span> <span class="nn">System.Linq</span><span class="p">;</span>
+</span><span class='line'><span class="k">using</span> <span class="nn">System.Text</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">namespace</span> <span class="nn">VehicleRegNo</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">Program</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">private</span> <span class="k">static</span> <span class="kt">int</span><span class="p">[]</span> <span class="nf">GetExclusiveVehicleRegNos</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">List</span> <span class="n">exclusiveVehicleRegNosList</span> <span class="p">=</span> <span class="k">new</span> <span class="n">List</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Range of all four digit numbers is 1000 to 9999</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">count</span> <span class="p">=</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="p">=</span> <span class="m">1000</span><span class="p">;</span> <span class="n">i</span> <span class="p">&lt;</span> <span class="m">9999</span><span class="p">;</span> <span class="n">i</span><span class="p">++)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">IsDigitsInAscendingOrder</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+</span><span class='line'>                <span class="p">{</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="p">(</span><span class="n">FindRecursiveSumOfDigits</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="p">==</span> <span class="m">1</span><span class="p">)</span>
+</span><span class='line'>                    <span class="p">{</span>
+</span><span class='line'>                        <span class="n">exclusiveVehicleRegNosList</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+</span><span class='line'>                        <span class="n">count</span><span class="p">++;</span>
+</span><span class='line'>                    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">return</span> <span class="n">exclusiveVehicleRegNosList</span><span class="p">.</span><span class="n">ToArray</span><span class="p">();</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">private</span> <span class="k">static</span> <span class="kt">int</span> <span class="nf">FindRecursiveSumOfDigits</span><span class="p">(</span><span class="kt">int</span> <span class="n">number</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Find recursive sum till the sum become a single digit.</span>
+</span><span class='line'>            <span class="c1">// Eg:- 9999 =&gt; 9 + 9 + 9 + 9 = 36 =&gt; 3 + 6 = 9</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">sum</span> <span class="p">=</span> <span class="n">FindSumOfDigits</span><span class="p">(</span><span class="n">number</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">while</span> <span class="p">(</span><span class="n">sum</span> <span class="p">&gt;</span> <span class="m">9</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">sum</span> <span class="p">=</span> <span class="n">FindSumOfDigits</span><span class="p">(</span><span class="n">sum</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">sum</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">private</span> <span class="k">static</span> <span class="kt">int</span> <span class="nf">FindSumOfDigits</span><span class="p">(</span><span class="kt">int</span> <span class="n">number</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">sum</span> <span class="p">=</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">while</span> <span class="p">(</span><span class="n">number</span> <span class="p">&gt;</span> <span class="m">0</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">sum</span> <span class="p">+=</span> <span class="p">(</span><span class="n">number</span> <span class="p">%</span> <span class="m">10</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">number</span> <span class="p">/=</span> <span class="m">10</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">sum</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">private</span> <span class="k">static</span> <span class="kt">bool</span> <span class="nf">IsDigitsInAscendingOrder</span><span class="p">(</span><span class="kt">int</span> <span class="n">number</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="kt">bool</span> <span class="n">isDigitsInAscendingOrder</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Getting the first digit</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">firstDigit</span> <span class="p">=</span> <span class="n">number</span> <span class="p">/</span> <span class="m">1000</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Getting the second digit</span>
+</span><span class='line'>            <span class="n">number</span> <span class="p">%=</span> <span class="m">1000</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">secondDigit</span> <span class="p">=</span> <span class="n">number</span> <span class="p">/</span> <span class="m">100</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Getting the third digit</span>
+</span><span class='line'>            <span class="n">number</span> <span class="p">%=</span> <span class="m">100</span><span class="p">;</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">thirdDigit</span> <span class="p">=</span> <span class="n">number</span> <span class="p">/</span> <span class="m">10</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">fourthDigit</span> <span class="p">=</span> <span class="n">number</span> <span class="p">%</span> <span class="m">10</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">firstDigit</span> <span class="p">&lt;</span> <span class="n">secondDigit</span> <span class="p">&amp;&amp;</span> <span class="n">secondDigit</span> <span class="p">&lt;</span> <span class="n">thirdDigit</span>
+</span><span class='line'>                                            <span class="p">&amp;&amp;</span> <span class="n">thirdDigit</span> <span class="p">&lt;</span> <span class="n">fourthDigit</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">isDigitsInAscendingOrder</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">return</span> <span class="n">isDigitsInAscendingOrder</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="kt">int</span><span class="p">[]</span> <span class="n">exclusiveVehicleRegNos</span> <span class="p">=</span> <span class="n">GetExclusiveVehicleRegNos</span><span class="p">();</span>
+</span><span class='line'>            <span class="kt">string</span> <span class="n">t</span> <span class="p">=</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="p">=</span> <span class="m">0</span><span class="p">;</span> <span class="n">i</span> <span class="p">&lt;</span> <span class="n">exclusiveVehicleRegNos</span><span class="p">.</span><span class="n">Length</span><span class="p">;</span> <span class="n">i</span><span class="p">++)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="c1">// Printing those exclusive nos                </span>
+</span><span class='line'>                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">exclusiveVehicleRegNos</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="cm">/********** Output *********************</span>
+</span><span class='line'><span class="cm">            1234</span>
+</span><span class='line'><span class="cm">            1279</span>
+</span><span class='line'><span class="cm">            1369</span>
+</span><span class='line'><span class="cm">            1378</span>
+</span><span class='line'><span class="cm">            1459</span>
+</span><span class='line'><span class="cm">            1468</span>
+</span><span class='line'><span class="cm">            1567</span>
+</span><span class='line'><span class="cm">            2359</span>
+</span><span class='line'><span class="cm">            2368</span>
+</span><span class='line'><span class="cm">            2458</span>
+</span><span class='line'><span class="cm">            2467</span>
+</span><span class='line'><span class="cm">            3457</span>
+</span><span class='line'><span class="cm">            4789</span>
+</span><span class='line'><span class="cm">            5689</span>
+</span><span class='line'><span class="cm">            ****************************************/</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+</div></div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/01/05/thank-god/">Thank God !!</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-01-05T00:00:00+05:30" pubdate data-updated="true">Jan 5<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/01/05/thank-god/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+    <div>
+        <p>I do google whenever had difficulties while coding (Typical style of Programming
+        isn’t it ???)</p>
+        <p>During those never ending google searches I usually land up in the blog posts which
+        salvage my difficulties.</p>
+        
+        <p>I wonder what would be the life of programmers if there is no such blogs exists!!</p>
+        
+        <p>Fine.. I don’t wanna write an essay describing my first blog. In simple words, I
+        just wanted to put all my knowledge gained under single roof and share with the
+        developers across the globe.</p>
+        So,<br />
+        Here We Go !!<br />
+        <br />
+        <figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">namespace</span> <span class="nn">Earth.Developers</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">Tamizhvendan</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">System</span><span class="p">.</span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Hearty Thanks to all blog writers &quot;</span> <span class="p">+</span>
+</span><span class='line'>                                        <span class="s">&quot;across the globe who inspired me to write this blog !!&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span></code></pre></td></tr></table></div></figure>
+    </div>
+</div>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/2/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>
+I&#8217;ve fell in love with programming on the very first day I&#8217;ve seen the computer. From there on , programming has been passion, hobby and literally everything. I am <em>Test Driven</em>, committed to write <strong>Clean Code</strong>
+</p>
+
+<p>I am an aspiring <em>Software Craftsman</em>, working hard and smart to become a <em>Better Programmer</em> and I enjoy learning, exploring, getting hands dirty on new and advanced technologies. </p> 
+
+<p>I adore changes, challenges, and things which keep me engaged and pushing me to the next level. I believe there is always a scope for getting better and it has no destination. I am fond of Knowledge sharing and mentoring</p>
+
+  <img alt="" height="91" id="Image2_img" src="http://4.bp.blogspot.com/-7NyiRNfxWGY/T9iU0JopacI/AAAAAAAAAbY/8HerSIg_NCU/s250/big-mvbbutton.png" width="200" style="visibility: visible;">
+</section><section>
+  <h1>Tag Cloud</h1>
+  	<div style="min-height:15px"></div>
+    <span id="tag-cloud" style="padding-top:20px"><a href='/blog/categories/asp-dot-net' style='font-size: 106.0%'>ASP.NET</a> <a href='/blog/categories/asp-dot-net-mvc' style='font-size: 160.0%'>ASP.NET MVC</a> <a href='/blog/categories/c-number' style='font-size: 124.0%'>C#</a> <a href='/blog/categories/craftsmanship' style='font-size: 124.0%'>Craftsmanship</a> <a href='/blog/categories/data-access' style='font-size: 118.0%'>Data Access</a> <a href='/blog/categories/entity-framework' style='font-size: 130.0%'>Entity Framework</a> <a href='/blog/categories/goals' style='font-size: 106.0%'>Goals</a> <a href='/blog/categories/javascript' style='font-size: 118.0%'>javascript</a> <a href='/blog/categories/jquery' style='font-size: 112.0%'>jQuery</a> <a href='/blog/categories/node-dot-js' style='font-size: 112.0%'>Node.js</a> <a href='/blog/categories/others' style='font-size: 106.0%'>Others</a> <a href='/blog/categories/programming' style='font-size: 136.0%'>Programming</a> <a href='/blog/categories/unit-testing' style='font-size: 130.0%'>Unit Testing</a> </span>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <p><a class="twitter-timeline" href="https://twitter.com/tamizhvendan" data-widget-id="328099727050678273">Tweets by @tamizhvendan</a></p>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Tamizhvendan S -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'tamizhvendan-blog';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+</body>
+</html>

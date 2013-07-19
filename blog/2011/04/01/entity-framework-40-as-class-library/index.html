@@ -1,0 +1,288 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Entity Framework 4.0 As Class Library - Part 2 - Tamizh's Thoughts</title>
+  <meta name="author" content="Tamizhvendan S">
+
+  
+  <meta name="description" content="As the continuation of my previous blog post, In this blog post we are going to explore on how to consume the data access class library created in &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://tamizhvendan.github.com/blog/2011/04/01/entity-framework-40-as-class-library">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="http://feeds.feedburner.com/tamizhvendan-blog" rel="alternate" title="Tamizh's Thoughts" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tamizh's Thoughts</a></h1>
+  
+    <h2>Passionate, Pragmatic, Polyglot programmer working hard and smart to be become a better programmer.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="http://feeds.feedburner.com/tamizhvendan-blog" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:tamizhvendan.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Entity Framework 4.0 as Class Library - Part 2</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-04-01T00:00:00+05:30" pubdate data-updated="true">Apr 1<span>st</span>, 2011</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div class='post'>
+<div></a>As the continuation of my previous <a href="/blog/2011/03/25/entity-framework-40-class-library-part/">blog post</a>, In this blog post we are going to explore on how to consume the data access class library created in the previous blog post.<p>Consuming the Data Access Library created using Entity Framework 4.0 involves the following two steps.<br /><ol><li>Adding reference to the class library</li><li>Adding the connection string in the config file (App.config or Web.config)</li></ol>Let us see how can we do these steps using a console application. To keep things simple I have opt for a console application. It holds the same for an ASP.NET , Windows Form, WPF,WCF, etc.</p><h3>Console Application Creation</h3>Create a new console application called &#8220;HrdConsoleApp&#8221;<br /><a href="http://1.bp.blogspot.com/-jd1uE7HyzUY/TZw4OSKgKVI/AAAAAAAAAFw/O0t-17BazAk/s1600/1.ConsoleAppCreation.PNG" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="221px" src="http://1.bp.blogspot.com/-jd1uE7HyzUY/TZw4OSKgKVI/AAAAAAAAAFw/O0t-17BazAk/s320/1.ConsoleAppCreation.PNG" width="320px" /></a><br /><a href="https://ch1blogs/blogs/211239/files/2011/04/1consoleappcreation.PNG" title="1consoleappcreation.PNG"></a><br /><br /><b>Add a reference to the Class library</b><br /><br />Right click on references and refer the class library &#8220;HRD.DataAccess&#8221; that we have created in the last blog. <br /><div class="separator" style="clear: both; text-align: center;"><a href="http://4.bp.blogspot.com/-238LBeCcS-8/TZw4UoXoTyI/AAAAAAAAAF0/Z-wMwpTZD1k/s1600/2.ReferenceLibrary.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="267px" src="http://4.bp.blogspot.com/-238LBeCcS-8/TZw4UoXoTyI/AAAAAAAAAF0/Z-wMwpTZD1k/s320/2.ReferenceLibrary.PNG" width="320px" /></a></div><b></b><br /><br />Add reference to System.Data.Entity Library<br /><a href="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s1600/5.DataEntityReference.PNG" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="267px" src="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s320/5.DataEntityReference.PNG" width="320px" /></a><a href="https://ch1blogs/blogs/211239/files/2011/04/5dataentityreference.PNG" title="5dataentityreference.PNG"><br /></a><br /><br />Add the App.Config file to the console application by right clicking on the project name in the solution explorer and select &#8220;Add-&gt;New Item&#8221;. Then Copy the connection string from the App.Config file created in the HrdDataAccess Class library Project created earlier and paste it in the App.config file created in the previous step.<br /><a href="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s1600/3.AppConfigCreation.PNG" style="clear: left; float: left; margin-bottom: 1em; margin-right: 1em;"><img src="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s320/3.AppConfigCreation.PNG" /></img><br /><p><a href="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s1600/5.DataEntityReference.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"></a></p>
+<a href="http://2.bp.blogspot.com/-HgFzRYacpQA/TZw6IqMd5oI/AAAAAAAAAGA/q_IiJsTNYvU/s1600/4.AppConfig.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img src="http://2.bp.blogspot.com/-HgFzRYacpQA/TZw6IqMd5oI/AAAAAAAAAGA/q_IiJsTNYvU/s320/4.AppConfig.PNG"/></a><a href="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s1600/3.AppConfigCreation.PNG" imageanchor="1"></a><p>Thats all now it is all set to access the database with only minimal amount of code.. Here we go!!</p><br /><h3>Code Please!</h3>
+<br />
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">using</span> <span class="nn">System</span><span class="p">;</span>
+</span><span class='line'><span class="k">using</span> <span class="nn">System.Linq</span><span class="p">;</span>
+</span><span class='line'><span class="k">using</span> <span class="nn">HRD.DataAccess</span><span class="p">;</span>
+</span><span class='line'><span class="k">namespace</span> <span class="nn">HrdConsoleApp</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">Program</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="kt">var</span> <span class="n">hrdEntities</span> <span class="p">=</span> <span class="k">new</span> <span class="n">HRDEntities</span><span class="p">();</span>
+</span><span class='line'>            <span class="k">foreach</span> <span class="p">(</span><span class="n">Employee</span> <span class="n">employee</span> <span class="k">in</span> <span class="n">hrdEntities</span><span class="p">.</span><span class="n">Employees</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Name: &quot;</span> <span class="p">+</span> <span class="n">employee</span><span class="p">.</span><span class="n">Name</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Department: &quot;</span> <span class="p">+</span> <span class="n">employee</span><span class="p">.</span><span class="n">Department</span><span class="p">.</span><span class="n">Name</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;########################&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+	<br /><b>Output</b> <br /><br /><div class="separator" style="clear: both; text-align: center;"><a href="http://1.bp.blogspot.com/-Fooy-W2-OCQ/TZw6M7tVqTI/AAAAAAAAAGE/tJ5UYVi5LRI/s1600/6.Output.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="161px" src="http://1.bp.blogspot.com/-Fooy-W2-OCQ/TZw6M7tVqTI/AAAAAAAAAGE/tJ5UYVi5LRI/s320/6.Output.PNG" width="320px" /></a></div><a href="https://ch1blogs/blogs/211239/files/2011/04/6output.PNG" title="6output.PNG"><br /></a><br /><br /><b>Summary:</b><br /><br />In this blog series (Part 1 and Part 2) we have seen how to create the data access layer using Entity Framework 4.0 as class library and how to consume it in an application. With the introduction of Entity Framework developing the code for data access layer is no longer a tidy and time consuming job!!</div></div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Tamizhvendan S</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-04-01T00:00:00+05:30" pubdate data-updated="true">Apr 1<span>st</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/data-access/'>Data Access</a>, <a class='category' href='/blog/categories/entity-framework/'>Entity Framework</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/03/25/entity-framework-40-class-library-part/" title="Previous Post: Entity Framework 4.0 - Class library - Part 1">&laquo; Entity Framework 4.0 - Class library - Part 1</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/04/24/dynamic-polymorphism-real-time-example/" title="Next Post: Dynamic Polymorphism - A Real time example">Dynamic Polymorphism - A Real time example &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>
+I've fell in love with programming on the very first day I've seen the computer. From there on , programming has been passion, hobby and literally everything. I am <em>Test Driven</em>, committed to write <strong>Clean Code</strong>
+</p>
+
+<p>I am an aspiring <em>Software Craftsman</em>, working hard and smart to become a <em>Better Programmer</em> and I enjoy learning, exploring, getting hands dirty on new and advanced technologies. </p> 
+
+<p>I adore changes, challenges, and things which keep me engaged and pushing me to the next level. I believe there is always a scope for getting better and it has no destination. I am fond of Knowledge sharing and mentoring</p>
+
+  <img alt="" height="91" id="Image2_img" src="http://4.bp.blogspot.com/-7NyiRNfxWGY/T9iU0JopacI/AAAAAAAAAbY/8HerSIg_NCU/s250/big-mvbbutton.png" width="200" style="visibility: visible;">
+</section><section>
+  <h1>Tag Cloud</h1>
+  	<div style="min-height:15px"></div>
+    <span id="tag-cloud" style="padding-top:20px"><a href='/blog/categories/asp-dot-net' style='font-size: 106.0%'>ASP.NET</a> <a href='/blog/categories/asp-dot-net-mvc' style='font-size: 160.0%'>ASP.NET MVC</a> <a href='/blog/categories/c-number' style='font-size: 124.0%'>C#</a> <a href='/blog/categories/craftsmanship' style='font-size: 124.0%'>Craftsmanship</a> <a href='/blog/categories/data-access' style='font-size: 118.0%'>Data Access</a> <a href='/blog/categories/entity-framework' style='font-size: 130.0%'>Entity Framework</a> <a href='/blog/categories/goals' style='font-size: 106.0%'>Goals</a> <a href='/blog/categories/javascript' style='font-size: 118.0%'>javascript</a> <a href='/blog/categories/jquery' style='font-size: 112.0%'>jQuery</a> <a href='/blog/categories/node-dot-js' style='font-size: 112.0%'>Node.js</a> <a href='/blog/categories/others' style='font-size: 106.0%'>Others</a> <a href='/blog/categories/programming' style='font-size: 136.0%'>Programming</a> <a href='/blog/categories/unit-testing' style='font-size: 130.0%'>Unit Testing</a> </span>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <p><a class="twitter-timeline" href="https://twitter.com/tamizhvendan" data-widget-id="328099727050678273">Tweets by @tamizhvendan</a></p>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Tamizhvendan S -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'tamizhvendan-blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://tamizhvendan.github.com/blog/2011/04/01/entity-framework-40-as-class-library/';
+        var disqus_url = 'http://tamizhvendan.github.com/blog/2011/04/01/entity-framework-40-as-class-library/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+</body>
+</html>

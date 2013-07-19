@@ -1,0 +1,621 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Observer Pattern using Delegates V/s Observer Pattern using Events and Delegates - Tamizh's Thoughts</title>
+  <meta name="author" content="Tamizhvendan S">
+
+  
+  <meta name="description" content="Most of the articles and texts in C# demonstrate the observer pattern using events and delegates. When going through one such text, a thought come &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://tamizhvendan.github.com/blog/2011/07/13/observer-pattern-using-delegates-vs">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="http://feeds.feedburner.com/tamizhvendan-blog" rel="alternate" title="Tamizh's Thoughts" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tamizh's Thoughts</a></h1>
+  
+    <h2>Passionate, Pragmatic, Polyglot programmer working hard and smart to be become a better programmer.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="http://feeds.feedburner.com/tamizhvendan-blog" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:tamizhvendan.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Observer Pattern Using Delegates v/s Observer Pattern Using Events and Delegates</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-07-13T00:00:00+05:30" pubdate data-updated="true">Jul 13<span>th</span>, 2011</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><div class='post'>
+	<p>
+Most of the articles and texts in C# demonstrate the observer pattern using events and delegates. When going through one such text, a thought come across my mind. Why we are going for events when we can easily achieve the multicasting using Delegates alone. After some R&amp;D, I found it out why and hence this blog post. </p> <p>I am going to explain this “why” using a Weather Station example. To keep things simple, the Weather Station that we are going to see will keep track of only the temperature. Whenever the temperature changes, it simplify notifies its subscribers with the new temperature. Flash News is one of the subscribers which show the temperature in flash news. News Feed, another subscriber which adds the temperature information to the news feed. Fine, enough theory! It’s time to see the code.</p>
+<p>Here is the implementation of Observer Pattern using Delegates alone. </p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">namespace</span> <span class="nn">DelegatesAndEvents</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">WeatherStation</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">private</span> <span class="kt">int</span> <span class="n">_temperature</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">public</span> <span class="n">TemperatureReporter</span> <span class="n">Reporter</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="kt">int</span> <span class="n">Temperature</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">get</span> <span class="p">{</span> <span class="k">return</span> <span class="n">_temperature</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>            <span class="k">set</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">Reporter</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>                <span class="p">{</span>
+</span><span class='line'>                    <span class="n">Reporter</span><span class="p">(</span><span class="k">value</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="n">_tempearture</span> <span class="p">=</span> <span class="k">value</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">NewsFeed</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">AddTemperatureInfoToFeed</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;News Feed: New temperature &quot;</span> <span class="p">+</span> <span class="n">temperature</span> <span class="p">+</span> <span class="s">&quot; added to feed.&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="nf">NewsFeed</span><span class="p">(</span><span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">+=</span> <span class="n">AddTemperatureInfoToFeed</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">FlashNews</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">ShowTemperatureInfoInFlashNews</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Flash News: New temperature is &quot;</span> <span class="p">+</span> <span class="n">temperature</span> <span class="p">+</span> <span class="s">&quot;.&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="nf">FlashNews</span><span class="p">(</span><span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">+=</span> <span class="n">ShowTemperatureInfoInFlashNews</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+	<h4>The Main Program</h4>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">namespace</span> <span class="nn">DelegatesAndEvents</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">delegate</span> <span class="k">void</span> <span class="nf">TemperatureReporter</span><span class="p">(</span><span class="kt">int</span> <span class="n">tempearture</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">Program</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Observer Pattern Using Delegates</span>
+</span><span class='line'>            <span class="n">WeatherStation</span> <span class="n">weatherStation</span> <span class="p">=</span> <span class="k">new</span> <span class="n">WeatherStation</span><span class="p">();</span>
+</span><span class='line'>            <span class="n">FlashNews</span> <span class="n">flashNews</span> <span class="p">=</span> <span class="k">new</span> <span class="n">FlashNews</span><span class="p">(</span><span class="n">weatherStation</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">NewsFeed</span> <span class="n">newsFeed</span> <span class="p">=</span> <span class="k">new</span> <span class="n">NewsFeed</span><span class="p">(</span><span class="n">weatherStation</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Temperature</span> <span class="p">=</span> <span class="m">30</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Temperature</span> <span class="p">=</span> <span class="m">15</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Temperature</span> <span class="p">=</span> <span class="m">45</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<h4>The output</h4><div class="separator" style="clear: both; text-align: center;"><a href="http://1.bp.blogspot.com/-LjDx8rPsr50/Th0bSdtTyHI/AAAAAAAAAHk/dMBuF4GLgD0/s1600/delegates-output.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img src="http://1.bp.blogspot.com/-LjDx8rPsr50/Th0bSdtTyHI/AAAAAAAAAHk/dMBuF4GLgD0/s320/delegates-output.PNG" /></a></div>
+<p>Hurrah! It’s working as expected. Both subscribers are get notified. We can implement the observer pattern using delegates alone. Stop for a minute and go through the code, is the implementation robust? Kudos if you are able to find the shortcomings of this implementation. If not continue reading. </p> <p>Think of a world where everyone is good. There is no need of police, no need of court either. But it is not the case. You may wonder why I am mentioning this here. This analogy holds true for the objective of this blog post too. There is no need of using events in the c# programming world if all the subscribers are good. Miserably, here also it is not the case. Hence we are going for events instead of using delegates alone. </p>
+<h4>Drawbacks of using delegates alone</h4>
+<ul><li>A subscriber can replace other subscribers by reassigning the delegate</li><li>A subscriber can clear all other subscribers also (by setting the delegate to null). </li><li>A subscriber can broadcast to other subscribers by invoking the delegate</li></ul>Clearly all the above 3 drawbacks violates the Observer Pattern.Here is our evil subscriber code implementation. 
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">namespace</span> <span class="nn">DelegatesAndEvents</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">EvilSubscriber</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">EvilMessage</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;The temperature is &quot;</span> <span class="p">+</span> <span class="p">(</span><span class="n">temperature</span> <span class="p">*</span> <span class="m">100</span><span class="p">));</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="nf">EvilSubscriber</span><span class="p">(</span><span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Broadcast to all the subscriber</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span><span class="p">(</span><span class="m">60</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Reassign the subscriber            </span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">=</span> <span class="n">EvilMessage</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Replace all the subscribers            </span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+<p>Hope now you understand the need of a better implementation of observer pattern. Here comes the salvage. Event! Use event along with delegates. With event in place, compiler will not allow the evil subscriber to get compiled. </p> 
+<h4>Robust implementation of Weather Station using events</h4>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">namespace</span> <span class="nn">DelegatesAndEvents</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">WeatherStation2</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">private</span> <span class="kt">int</span> <span class="n">_tempearture</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="k">event</span> <span class="n">TemperatureReporter</span> <span class="n">Reporter</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="kt">int</span> <span class="n">Temperature</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">get</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">return</span> <span class="n">_tempearture</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">set</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">Reporter</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>                <span class="p">{</span>
+</span><span class='line'>                    <span class="n">Reporter</span><span class="p">(</span><span class="k">value</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="n">_tempearture</span> <span class="p">=</span> <span class="k">value</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">NewsFeed2</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">AddTemperatureInfoToFeed</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;News Feed2: New temperature &quot;</span> <span class="p">+</span> <span class="n">temperature</span> <span class="p">+</span> <span class="s">&quot; added to feed.&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="nf">NewsFeed2</span><span class="p">(</span><span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">+=</span> <span class="n">AddTemperatureInfoToFeed</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">FlashNews2</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">ShowTemperatureInfoInFlashNews</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Flash News2: New temperature is &quot;</span> <span class="p">+</span> <span class="n">temperature</span> <span class="p">+</span> <span class="s">&quot;.&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="nf">FlashNews2</span><span class="p">(</span><span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span> <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">+=</span> <span class="n">ShowTemperatureInfoInFlashNews</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>    			
+</span></code></pre></td></tr></table></div></figure>
+
+<p>The unfortunate evil subscriber no longer compiles with events!</p> 
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">class</span> <span class="nc">EvilSubscriber2</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">public</span> <span class="k">void</span> <span class="nf">EvilMessage</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;The temperature is &quot;</span> <span class="p">+</span> <span class="p">(</span><span class="n">temperature</span> <span class="p">*</span> <span class="m">100</span><span class="p">));</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">public</span> <span class="nf">EvilSubscriber2</span><span class="p">(</span><span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Broadcast to all the subscriber         </span>
+</span><span class='line'>        <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span><span class="p">(</span><span class="m">60</span><span class="p">);</span> <span class="c1">// Compiler Error                </span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Reassign the subscriber                </span>
+</span><span class='line'>        <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">=</span> <span class="n">EvilMessage</span><span class="p">;</span> <span class="c1">// Compiler Error  </span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Replace all the subscribers                 </span>
+</span><span class='line'>        <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span> <span class="c1">// Compiler Error    </span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<br />
+You&nbsp;can download the source code from <a href="http://www.box.net/shared/kunno1y9noj26qodstnz">here</a></div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Tamizhvendan S</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-07-13T00:00:00+05:30" pubdate data-updated="true">Jul 13<span>th</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/c-number/'>C#</a>, <a class='category' href='/blog/categories/programming/'>Programming</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/06/26/ajax-mvc3-ajax-part-ii-adding-animation/" title="Previous Post: ASP.NET MVC3 Ajax Part II - Adding Animation to Action Link">&laquo; ASP.NET MVC3 Ajax Part II - Adding Animation to Action Link</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/07/27/journey-towards-software-craftsmanship/" title="Next Post: A journey towards software craftsmanship">A journey towards software craftsmanship &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>
+I've fell in love with programming on the very first day I've seen the computer. From there on , programming has been passion, hobby and literally everything. I am <em>Test Driven</em>, committed to write <strong>Clean Code</strong>
+</p>
+
+<p>I am an aspiring <em>Software Craftsman</em>, working hard and smart to become a <em>Better Programmer</em> and I enjoy learning, exploring, getting hands dirty on new and advanced technologies. </p> 
+
+<p>I adore changes, challenges, and things which keep me engaged and pushing me to the next level. I believe there is always a scope for getting better and it has no destination. I am fond of Knowledge sharing and mentoring</p>
+
+  <img alt="" height="91" id="Image2_img" src="http://4.bp.blogspot.com/-7NyiRNfxWGY/T9iU0JopacI/AAAAAAAAAbY/8HerSIg_NCU/s250/big-mvbbutton.png" width="200" style="visibility: visible;">
+</section><section>
+  <h1>Tag Cloud</h1>
+  	<div style="min-height:15px"></div>
+    <span id="tag-cloud" style="padding-top:20px"><a href='/blog/categories/asp-dot-net' style='font-size: 106.0%'>ASP.NET</a> <a href='/blog/categories/asp-dot-net-mvc' style='font-size: 160.0%'>ASP.NET MVC</a> <a href='/blog/categories/c-number' style='font-size: 124.0%'>C#</a> <a href='/blog/categories/craftsmanship' style='font-size: 124.0%'>Craftsmanship</a> <a href='/blog/categories/data-access' style='font-size: 118.0%'>Data Access</a> <a href='/blog/categories/entity-framework' style='font-size: 130.0%'>Entity Framework</a> <a href='/blog/categories/goals' style='font-size: 106.0%'>Goals</a> <a href='/blog/categories/javascript' style='font-size: 118.0%'>javascript</a> <a href='/blog/categories/jquery' style='font-size: 112.0%'>jQuery</a> <a href='/blog/categories/node-dot-js' style='font-size: 112.0%'>Node.js</a> <a href='/blog/categories/others' style='font-size: 106.0%'>Others</a> <a href='/blog/categories/programming' style='font-size: 136.0%'>Programming</a> <a href='/blog/categories/unit-testing' style='font-size: 130.0%'>Unit Testing</a> </span>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <p><a class="twitter-timeline" href="https://twitter.com/tamizhvendan" data-widget-id="328099727050678273">Tweets by @tamizhvendan</a></p>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Tamizhvendan S -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'tamizhvendan-blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://tamizhvendan.github.com/blog/2011/07/13/observer-pattern-using-delegates-vs/';
+        var disqus_url = 'http://tamizhvendan.github.com/blog/2011/07/13/observer-pattern-using-delegates-vs/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+</body>
+</html>

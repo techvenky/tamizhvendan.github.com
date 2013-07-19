@@ -1,0 +1,1447 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Tamizh's Thoughts</title>
+  <meta name="author" content="Tamizhvendan S">
+
+  
+  <meta name="description" content="In Part-1of this small blog post series, we have explored a way to do the TDD of controller’s responsibility in the context of model validation. In &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://tamizhvendan.github.com/blog/page/2">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="http://feeds.feedburner.com/tamizhvendan-blog" rel="alternate" title="Tamizh's Thoughts" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Tamizh's Thoughts</a></h1>
+  
+    <h2>Passionate, Pragmatic, Polyglot programmer working hard and smart to be become a better programmer.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="http://feeds.feedburner.com/tamizhvendan-blog" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:tamizhvendan.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/08/17/test-driving-model-validation-in-aspnet_17/">Test Driving Model Validation in ASP.NET MVC3 - Part 2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-08-17T00:00:00+05:30" pubdate data-updated="true">Aug 17<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/08/17/test-driving-model-validation-in-aspnet_17/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div>
+<p style="text-align: justify;">
+ In <a href="/blog/2011/08/13/test-driving-model-validation-in-aspnet/">Part-1</a>of this small blog post series, we have explored a way to do the TDD of controller’s responsibility in the context of model validation. In this Part-2 we are going to see <strong>“How to do the TDD of Model Validation”</strong>
+</p>
+
+<p style="text-align: justify;">
+ Before getting into the business let us have a quick look at how ASP.NET MVC3 does the model validation. Internally when making an Http POST/GET request, MVC3 makes use of a helper class <strong><a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validator.aspx">Validator</a></strong> located in the namespace <em>System.ComponentModel.DataAnnotations.</em> Validator can be used to validate the models based on the <strong><a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validationattribute.aspx">ValidationAttribute</a></strong> attributes associate with the model. After validating MVC3 adds the validation results to the controller’s <em>ModelState</em> Property by the <em>AddModelError</em> method which in turn sets the<em> ModelState.IsValid</em> property (Refer <a href="/blog/2011/08/13/test-driving-model-validation-in-aspnet/">Part-1</a>). We are actually going to make use of this <em>Validator</em> helper class going to test drive the model validation. 
+</p>
+
+  <h4>Let us start with a small requirement</h4>
+<div style="text-align: center;">
+ <em>“Employee name should not be empty”</em>
+</div>
+<br />
+ <p>The corresponding unit test will be like as follows</p>
+ 
+ <div class="separator" style="clear: both; text-align: center;">
+ <a href="http://4.bp.blogspot.com/-3Ql_dP2wJkE/Tku0g78apHI/AAAAAAAAAKw/gV-lTvda50I/s1600/UnitTest1.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="200px" qaa="true" src="http://4.bp.blogspot.com/-3Ql_dP2wJkE/Tku0g78apHI/AAAAAAAAAKw/gV-lTvda50I/s320/UnitTest1.PNG" width="320px" /></a></div>
+
+
+ <p style="text-align: justify;">ValidateObject Method determines whether the specified object is valid using the validation context and throws a ValidationException if the object is invalid.</p>
+
+
+ <p>Employee Model will be like as follows</p>
+ 
+ <div class="separator" style="clear: both; text-align: center;">
+ <a href="http://4.bp.blogspot.com/-URfST5ZPMwo/Tku0gsJJAxI/AAAAAAAAAKs/5K0GYH1ObLs/s1600/Emp1.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" qaa="true" src="http://4.bp.blogspot.com/-URfST5ZPMwo/Tku0gsJJAxI/AAAAAAAAAKs/5K0GYH1ObLs/s1600/Emp1.PNG" /></a></div>
+
+<p style="text-align: justify;">
+
+ When you run the test “EmployeeNameShouldNotBeEmpty”, it will <strong><span style="color: red;">Fail</span></strong> with the error message <em>“System.ComponentModel.DataAnnotations.ValidationException was expected”</em>. Now it’s time to make it <strong><span style="color: #00b050;">Pass. </span></strong>Thanks to <em>RequiredAttribute</em> we can make the test the pass without much effort. Just decorate the Name property with the <em>[Required]</em> Attribute. That’s it. Now run the test and it will <strong><span style="color: #00b050;">Pass.</span></strong> As there is no scope for Refactoring, we will be ignoring it.
+</p>
+
+ <p>Well, we have done the TDD of model validation. Now let’s move onto the next requirement. </p>
+ <div style="text-align: center;">
+ <em>“Employee age should be greater than 30”</em>
+</div>
+<br />
+ <p style="text-align: justify;"> 
+ Let’s write the unit test for this requirement.
+ </p>
+ 
+ <div class="separator" style="clear: both; text-align: center;">
+ <a href="http://3.bp.blogspot.com/-cXpXTstCDr4/Tku0hg4cWDI/AAAAAAAAAK0/hahJBKoWOLI/s1600/UnitTest2.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="83px" qaa="true" src="http://3.bp.blogspot.com/-cXpXTstCDr4/Tku0hg4cWDI/AAAAAAAAAK0/hahJBKoWOLI/s320/UnitTest2.PNG" width="320px" /></a></div>
+ 
+ <p>When we run the test, we’d get a failing test with error message “System.ComponentModel.DataAnnotations.ValidationException was expected”</p>
+
+ <p>Like <em>RequiredAttribute</em> we don’t have any AgeLimit Attribute to make the test pass. However we can create such kind of CustomAttributes. Another approach would be making use of <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.ivalidatableobject.aspx"><em>IValiadatableObject</em></a></p>
+
+ <p style="text-align: justify;">I will be using the latter option in this blog post, if you are interested in creating custom attribute refer this <a href="http://www.devtrends.co.uk/blog/the-complete-guide-to-validation-in-asp.net-mvc-3-part-2">blog post</a></p>
+
+ <p>Here we go; the modified Employee model will look like as follows </p>
+
+ <div class="separator" style="clear: both; text-align: center;">
+ <a href="http://1.bp.blogspot.com/-zAsuau_JXwA/Tku0iUzEgFI/AAAAAAAAAK4/J1t3gYaECmw/s1600/Emp2.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="119px" qaa="true" src="http://1.bp.blogspot.com/-zAsuau_JXwA/Tku0iUzEgFI/AAAAAAAAAK4/J1t3gYaECmw/s320/Emp2.PNG" width="320px" /></a></div>
+
+ <p>
+ The <em>Validator</em> helper class will invoke the Validate method of the model if the model passed to the <em>ValidateObject</em> Method implements the <em>IValidatableObject</em>.</p>
+
+ <p>Hurrah! Now you will be getting a passing test. We have done the TDD of Model Validation. </p>
+ <h3>Summary</h3>
+ <p>The bottom-line is we should not combine the unit tests of model validation with the controller’s unit tests and both should be kept separate. You can download the source code which we’ve seen in this blog post series from </span><a href="http://www.box.net/shared/73e9m5d2ufyi6pazfq4j"><span style="font-family: Calibri;">here</span></a></p>
+ </div>
+ </div></div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/08/13/test-driving-model-validation-in-aspnet/">Test Driving Model Validation in ASP.NET MVC3 - Part 1</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-08-13T00:00:00+05:30" pubdate data-updated="true">Aug 13<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/08/13/test-driving-model-validation-in-aspnet/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div>
+ <p style="text-align: justify;">
+ Entity
+ Framework 4.1(EF4.1) provides in-built support for defining the validation
+ constraints in model through Data Annotation attributes and Fluent API. It’s
+ one of the cool features provided by EF4.1 that enables the developers to define
+ validation rules of the model in an easy and more maintainable way. In addition
+ to that MVC3 framework makes use of these validation model and supports both
+ client and server side validation without writing any code!</p>
+
+ <p style="text-align: justify;">
+ I’m
+ in the early days of practising Test Driven Development (TDD). Fortunately I
+ have got an opportunity to implement TDD in my current assignment. I feel I am
+ much oriented and focused towards the solution while using TDD. Also it makes
+ me to critique my design and the way I do the coding. I would like to be a
+ better programmer and looking forward to improve myself and hence TDD suits me
+ more. Learning TDD and practising it is totally different! Yes, in theory it
+ is very easy to read and understand TDD. But when you practise it, you will
+ encounter many more interesting things about TDD and in fact it’s where you can
+ actually learn TDD.</p>
+
+ <p style="text-align: justify;">
+ Okay,
+ how to do TDD with Controller&#8217;s responsibility in the context of Model validation in MVC3. Well, it is easy but
+ we should understand and find out what exactly we want to test and the way to
+ test them. Many articles and blog posts suggest doing it through the controller.
+ Is it really a good approach to test the model validation through
+ controller?&nbsp;&nbsp; Kindly think of it for a
+ moment. I feel it is not a right way to deal this stuff.&nbsp;</p>
+ <p style="text-align: justify;">
+ Let me explain
+ it through a small example. Consider an Employee model which has two
+ properties Name and Age&nbsp;and an EmployeeController responsible for doing
+ CRUD on Employee Model. What is the responsibility of EmployeeController when creating a new Employee data? It should check whether the posted employee model is valid or not, if it is valid add to the database else return the view with the validation errors. MVC3 framework makes life easy by automatically validating the Posted model and set the <b>IsValid</b> Property of the ModelState and also add validation errors to the model. Hence controller&#8217;s job is very easy as follows</p>
+ <p class="separator" style="clear: both; text-align: center;">
+ <a href="http://2.bp.blogspot.com/-gMWdWyjaBxQ/TkYnWEIpWQI/AAAAAAAAAKI/mvc7iTeatok/s1600/Employee.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="http://2.bp.blogspot.com/-gMWdWyjaBxQ/TkYnWEIpWQI/AAAAAAAAAKI/mvc7iTeatok/s1600/Employee.png" /></a></p>
+
+ <div class="separator" style="clear: both; text-align: center;">
+ <a href="http://1.bp.blogspot.com/-DSw1qdzt9ZA/TkYYuJLxKGI/AAAAAAAAAJw/5k1AerK1wiE/s1600/EmpControllerResponsibility.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="189" src="http://1.bp.blogspot.com/-DSw1qdzt9ZA/TkYYuJLxKGI/AAAAAAAAAJw/5k1AerK1wiE/s320/EmpControllerResponsibility.png" width="320" /></a></div>
+ <h4>Corresponding TestCases</h4>
+
+ <ul>
+ <li>When creating a new employee, if the passed employee data is valid, it should be added to the database</li>
+ <li>When creating a new employee, if the passsed employee data is InValid, it should not add to the database and show the view with validation errors.</li>
+ </ul>
+ <br />
+ <div style="text-align: justify;">
+ The first unit test will be as following:</div>
+ <div class="separator" style="clear: both; text-align: center;">
+ <a href="http://3.bp.blogspot.com/-XEBOUhl7_WM/TkYgBqYX9VI/AAAAAAAAAJ0/wqKLvm_NGnw/s1600/EmpControllerUnitTest1.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="161" src="http://3.bp.blogspot.com/-XEBOUhl7_WM/TkYgBqYX9VI/AAAAAAAAAJ0/wqKLvm_NGnw/s320/EmpControllerUnitTest1.png" width="320" /></a></div>
+ <div class="separator" style="clear: both; text-align: center;">
+ <br /></div>
+ <p style="text-align: justify;">
+ This unit test makes use of the following fake Database implementation.</p>
+ <div style="text-align: justify;">
+ <br /></div>
+ <p class="separator" style="clear: both; text-align: center;">
+ <a href="http://4.bp.blogspot.com/-c1GRZq3f1Ms/TkYiTwN9z4I/AAAAAAAAAJ4/lma-KtsMK6Q/s1600/fakeDatabase.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="136" src="http://4.bp.blogspot.com/-c1GRZq3f1Ms/TkYiTwN9z4I/AAAAAAAAAJ4/lma-KtsMK6Q/s320/fakeDatabase.png" width="320" /></a></p>
+ <p style="text-align: justify;">
+ To keep this blog post simple, I am not showcasing the TDD steps which I have done here and the EmployeeController Code would be as follows.</p>
+ <div style="text-align: justify;">
+ <br /></div>
+ <div class="separator" style="clear: both; text-align: center;">
+ <a href="http://1.bp.blogspot.com/-QRcFWLWNsmg/TkYkHGAoWnI/AAAAAAAAAJ8/FEit5wZZWs0/s1600/EmpController.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="320" src="http://1.bp.blogspot.com/-QRcFWLWNsmg/TkYkHGAoWnI/AAAAAAAAAJ8/FEit5wZZWs0/s320/EmpController.png" width="315" /></a></div>
+ <div class="separator" style="clear: both; text-align: center;">
+ <br /></div>
+ <p class="separator" style="clear: both; text-align: justify;">
+ Employee Controller makes use of an InMemory Database (Simplest option!!) &nbsp;which implements the IRepository interface.&nbsp;</p>
+ <div class="separator" style="clear: both; text-align: justify;">
+ <br /></div>
+ <p class="separator" style="clear: both; text-align: center;">
+ <a href="http://1.bp.blogspot.com/-xy_kB-hQk9o/TkYlRVdooZI/AAAAAAAAAKA/nnxYCWTdTLg/s1600/IRepository.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="http://1.bp.blogspot.com/-xy_kB-hQk9o/TkYlRVdooZI/AAAAAAAAAKA/nnxYCWTdTLg/s1600/IRepository.png" /></a></p>
+ 
+ <div class="separator" style="clear: both; text-align: center;">
+ <a href="http://2.bp.blogspot.com/-yU6djR74NeA/TkYlXKnjBOI/AAAAAAAAAKE/eXcZL2_7qew/s1600/InMemoryDb.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="http://2.bp.blogspot.com/-yU6djR74NeA/TkYlXKnjBOI/AAAAAAAAAKE/eXcZL2_7qew/s1600/InMemoryDb.png" /></a></div>
+ <div class="separator" style="clear: both; text-align: center;">
+ <br /></div>
+ <p class="separator" style="clear: both; text-align: justify;">
+ I have done all the wire ups to make the first unit test pass. (Pardon me! For the sake of simplicity of this blog post I&#8217;ve violated TDD rules. Hope you can infer the TDD steps from the coding samples). Its time to &nbsp;move to the next unit test and here comes a bottleneck. &nbsp; &nbsp;</p>
+
+ <p style="text-align: justify;">
+ You may wonder what it is that. There comes a feature of ASP.NET MVC 3 framework. During HTTP post action the framework validates the employee model and sets the EmployeeController&#8217;s Property <em>ModelState.IsValid</em> to true or false. <b>It occurs only during HTTP post. </b>In our unit test code we are actually calling the action methods of the controller and not making any HTTP post. So, the ModalState is always true whenever we call the action methods of a controller from a unit testing code.&nbsp;</p>
+
+ <p style="text-align: justify;">
+ In our second test case, we need to setup a controller in such a way that its ModelState property is InValid. We can do this by adding a ModelError to the ModelState property of the EmployeeController. Infact it is what MVC3 framework is doing under the hood when making HTTP post.&nbsp;</p>
+ 
+ <div class="separator" style="clear: both; text-align: center;">
+ <a href="http://4.bp.blogspot.com/-iVcBB1yZRLI/TkYrDW5JloI/AAAAAAAAAKM/li_PACoQS1E/s1600/EmpControllerUnitTest2.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="98" src="http://4.bp.blogspot.com/-iVcBB1yZRLI/TkYrDW5JloI/AAAAAAAAAKM/li_PACoQS1E/s320/EmpControllerUnitTest2.png" width="320" /></a></div>
+ <div style="text-align: justify;">
+ <br /></div>
+ <h4>
+ Hurrah! Thats it !!</h4>
+ <div style="text-align: justify;">
+ <br /></div>
+ <p style="text-align: justify;">
+ Now we Test drived the controller&#8217;s responsibility in the context of model validation. In my <a href="/blog/2011/08/17/test-driving-model-validation-in-aspnet_17/">next blog post</a> &nbsp;I&#8217;d showcase how to test drive the model validation itself.</p>
+ 
+ </div>
+ </div></div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/08/04/ef-code-first-41-in-console-application/">EF Code First 4.1 in Console Application</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-08-04T00:00:00+05:30" pubdate data-updated="true">Aug 4<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/08/04/ef-code-first-41-in-console-application/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div>
+		<p>Whenever I learn any new things in .Net or experimenting with something, I always prefer to use <em>Console Applications.</em> I personally feel it helps me to concentrate more on what actually I am trying to learn or experiment without any sort of distractions. Moreover it keeps things simple. </p>
+	
+		<p>I would like to do the same while learning EF Code First 4.1. Though most of articles in web explain EF with respect to ASP.NET MVC, I favor learning it through my own way using console application without creating any controllers and views!!</p>
+	
+	<h4>Following are the prerequisites to work with EF Code First 4.1</h4>
+	<ul>
+		<li>
+			<a href="http://weblogs.asp.net/scottgu/archive/2011/03/15/visual-studio-2010-sp1.aspx">Visual Studio 2010 SP1</a>
+		</li>
+		<li>
+			<a href="http://blogs.msdn.com/b/adonet/archive/2011/04/11/ef-4-1-released.aspx">Entity Framework 4.1</a>
+		</li>
+		<li>
+			<a href="http://weblogs.asp.net/scottgu/archive/2011/01/11/vs-2010-sp1-and-sql-ce.aspx">SQL CE</a> or SQL Express (SQL CE would be an ideal option for learning purpose)
+		</li>
+			
+	</ul>
+
+	<h4>Show me the Code!</h4>
+		<p>After creating a console application project, the initial step would be adding references to the following assemblies.
+			<ul>	
+				<li>EntityFramework (Version 4.1)</li>
+				<li>System.Data.Entity</li>
+				<li>System.ComponentModel.DataAnnotations</li>
+			</ul>	
+		</p>	
+		
+		<p>Now it’s time to defining the model and the data context. To keep it simple, I am going to define only one model “User”.</p>
+			<a href="http://4.bp.blogspot.com/-FxoouXlWKxw/TjqAva1qsWI/AAAAAAAAAJM/5PLCVnNFhDQ/s1600/User.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="260px" src="http://4.bp.blogspot.com/-FxoouXlWKxw/TjqAva1qsWI/AAAAAAAAAJM/5PLCVnNFhDQ/s320/User.PNG" t$="true" width="320px" /></a>
+		<p>The data context would be as following.</p>
+
+		<a href="http://3.bp.blogspot.com/-2pLPCQePVKY/TjqAwJ-QD4I/AAAAAAAAAJU/X66hDdCw6eo/s1600/MyDataContext.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="169px" src="http://3.bp.blogspot.com/-2pLPCQePVKY/TjqAwJ-QD4I/AAAAAAAAAJU/X66hDdCw6eo/s320/MyDataContext.PNG" t$="true" width="320px" /></a>
+		<p>This basic infrastructure is sufficient to run the console application. However as we are using the data context for learning purpose, we might change the model often and doing so will make it inconsistent with the database created automatically when you run the application for the first time. </p>
+		<p> We can circumvent this situation by creating new Data Context initialize class that inherits from <em>DropCreateDatabaseIfModelChanges</em>&lt;TContext&gt; where TContext is the data context that you want to sync with the database always. This class also offers an override function <em>“Seed”</em> using which we can fill the database with some initial data.</p>
+
+		<p>The finished code of DataContext initialize class will be like the following.</p>
+		<a href="http://2.bp.blogspot.com/-fFqQJzPBGkY/TjqAwOW4nMI/AAAAAAAAAJY/DDY_VyYQHfI/s1600/MyDataContextInit.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="262px" src="http://2.bp.blogspot.com/-fFqQJzPBGkY/TjqAwOW4nMI/AAAAAAAAAJY/DDY_VyYQHfI/s320/MyDataContextInit.PNG" t$="true" width="320px" /></a>
+		<p>This datacontext initialize class would create the database whenever the database model changes and create two users by default. Now it’s time to code our Main method.</p>
+		<p>Here we go. Pay close attention to the first statement in the Main method that initializes the database with an instance of DataContextInit class that we have created.</p>
+		<a href="http://4.bp.blogspot.com/-jl5r5Sk7m0Q/TjqAvdAJRPI/AAAAAAAAAJQ/elZcjzTNgEE/s1600/EFConsoleApp.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="223px" src="http://4.bp.blogspot.com/-jl5r5Sk7m0Q/TjqAvdAJRPI/AAAAAAAAAJQ/elZcjzTNgEE/s320/EFConsoleApp.PNG" t$="true" width="320px" /></a>
+		
+		<p>Now you can run the application without any configurations. The default behavior of EF Code First will create the database with the same name as your data context name here “MyDataContext” in the SQL Express server installed in the local machine. If you wish to change this default behavior and wanted to use SQL CE instead of SQL Express just add an App.Config to the project and create a connection string with the name of your data context as follows.</p>
+
+		<a href="http://4.bp.blogspot.com/-YUZyAGX2KyA/TjqAvBuEd4I/AAAAAAAAAJI/p_UjE-K_lR8/s1600/Configuration.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="65px" src="http://4.bp.blogspot.com/-YUZyAGX2KyA/TjqAvBuEd4I/AAAAAAAAAJI/p_UjE-K_lR8/s320/Configuration.PNG" t$="true" width="320px" /></a>
+
+		<p>That’s it. “Ctrl+F5” and here is the output</p>
+
+		<a href="http://3.bp.blogspot.com/-l0IfgWCGZfQ/TjqAwX_8pnI/AAAAAAAAAJc/RLcjASqgaBo/s1600/Output.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="117px" src="http://3.bp.blogspot.com/-l0IfgWCGZfQ/TjqAwX_8pnI/AAAAAAAAAJc/RLcjASqgaBo/s320/Output.PNG" t$="true" width="320px" /></a>
+
+		<h4>Summary</h4>
+		<p>In this blog post we have explore the basic foundation on how to work with EF CodeFirst using console application. If you want to get your dirty with EF Code First without any distraction Console Application is a better one. You can download the sample code used in this blog post from <a href="http://www.box.net/shared/s0yu8b4sebp3dh9ru5gb">here.</a>
+		</div>
+	</div></div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/08/03/using-ajaxbeginform-aspnet-mvc3-ajax/">Using Ajax.BeginForm – ASP.NET MVC3 Ajax – Part III</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-08-03T00:00:00+05:30" pubdate data-updated="true">Aug 3<span>rd</span>, 2011</time>
+        
+         | <a href="/blog/2011/08/03/using-ajaxbeginform-aspnet-mvc3-ajax/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<p>In my previous blog posts <a href="/blog/2011/06/24/aspnet-mvc-3-ajax-part-i/">Part 1</a>, <a href="/blog/2011/06/26/ajax-mvc3-ajax-part-ii-adding-animation/">Part 2</a> we have explored how to use the <em>Ajax.ActionLink()</em> helper method to implement a basic Ajax request. In this blog post we have are going to see an another useful helper method <em>Ajax.BeginForm()</em></p>
+<p>
+We will be implementing the following scenario using the <em>Ajax.BeginForm()</em>. The scenario would be having a view consisting of a simple form with name and email field.<a href="http://3.bp.blogspot.com/-ymtu1zLXx3A/TjkOu1RpS_I/AAAAAAAAAIs/dbURJFeRGeA/s1600/AjaxBeginForm1.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="320px" src="http://3.bp.blogspot.com/-ymtu1zLXx3A/TjkOu1RpS_I/AAAAAAAAAIs/dbURJFeRGeA/s320/AjaxBeginForm1.PNG" width="249px" /></a>
+<p>Upon clicking the “Submit” button, the data will be sent back to the server via Ajax Post request and get a confirmation like this.</p><a href="http://4.bp.blogspot.com/-SvRqB-F2Yu4/TjkOuy-BpiI/AAAAAAAAAIw/er75G6DKkcU/s1600/AjaxBeginForm2.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="http://4.bp.blogspot.com/-SvRqB-F2Yu4/TjkOuy-BpiI/AAAAAAAAAIw/er75G6DKkcU/s1600/AjaxBeginForm2.PNG" /></a> <p>ASP.NET MVC3 offers an intutive way to submitting/posting the form data to server via ajax using <a href="http://msdn.microsoft.com/en-us/library/system.web.mvc.ajax.ajaxextensions.beginform.aspx"><em>Ajax.BeginForm</em></a> helper method. Lets start developing the scenario by first defining the Model (Not using TDD to keep this blog post simple).</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">using</span> <span class="nn">System.ComponentModel.DataAnnotations</span><span class="p">;</span>
+</span><span class='line'><span class="k">namespace</span> <span class="nn">UsingAjaxForms.Models</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">class</span> <span class="nc">PersonalDetail</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'><span class="na">        [Required]</span>
+</span><span class='line'>        <span class="k">public</span> <span class="kt">string</span> <span class="n">Name</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="na">        [Required]</span>
+</span><span class='line'>        <span class="k">public</span> <span class="kt">string</span> <span class="n">Email</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>To keep things simple, Our PersonalDetailsController will be having only two action methods. One will handling the “Get” request for Creating PersonalDetail and the other one for handling “Post” request for Creating PersonalDetail.
+</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">using</span> <span class="nn">System.Web.Mvc</span><span class="p">;</span>
+</span><span class='line'><span class="k">using</span> <span class="nn">UsingAjaxForms.Models</span><span class="p">;</span>
+</span><span class='line'><span class="k">namespace</span> <span class="nn">UsingAjaxForms.Controllers</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">class</span> <span class="nc">PersonalDetailController</span> <span class="p">:</span> <span class="n">Controller</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">public</span> <span class="n">ActionResult</span> <span class="nf">Create</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="kt">var</span> <span class="n">personalDetail</span> <span class="p">=</span> <span class="k">new</span> <span class="n">PersonalDetail</span><span class="p">();</span>
+</span><span class='line'>            <span class="k">return</span> <span class="nf">View</span><span class="p">(</span><span class="n">personalDetail</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="na">        [HttpPost]</span>
+</span><span class='line'>        <span class="k">public</span> <span class="kt">string</span> <span class="nf">Create</span><span class="p">(</span><span class="n">PersonalDetail</span> <span class="n">personalDetails</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="s">&quot;Hi &quot;</span> <span class="p">+</span> <span class="n">personalDetails</span><span class="p">.</span><span class="n">Name</span> <span class="p">+</span> <span class="s">&quot;!. Thanks for providing the details.&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+	<p>Now, the stage is set to play using ajax. The View for Creating new PersonalDetail using Ajax is similar to that of using oridinary post back except one factor. We need to replace the Html.BeginForm helper method with the <a href="http://msdn.microsoft.com/en-us/library/system.web.mvc.ajax.ajaxextensions.beginform.aspx"><em>Ajax.BeginForm</em></a></p>
+
+	<p>Ajax.BeginForm method has 11 overloads. On this blog post we are going to use the following overload. <em>Ajax.BeginForm(string actionName, string controllerName, AjaxOptions ajaxOptions)</em>
+		<p>The actionName and controllerName points to the handler which is going to handle the ajax request and the ajaxOptions defines the behaviour of the ajax request. The View for Creating PersonalDetail will look like this</p>
+
+		<div class="MsoNormal" style="margin: 0in 0in 10pt; text-align: justify; text-indent: 0.5in;"><div closure_uid_lmpfp9="213"><span style="font-family: Calibri;"><span style="mso-no-proof: yes;"><b style="mso-bidi-font-weight: normal;"><span closure_uid_lmpfp9="212" style="mso-tab-count: 1;">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="mso-spacerun: yes;">&nbsp;&nbsp;</span><span style="mso-spacerun: yes;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></b></span><b style="mso-bidi-font-weight: normal;"></b></span></div></div><div class="MsoNormal" style="margin: 0in 0in 10pt; text-align: justify;"><div class="separator" style="border-bottom: medium none; border-left: medium none; border-right: medium none; border-top: medium none; clear: both; text-align: center;"><a href="http://2.bp.blogspot.com/-MbuiTU8NMKU/TjkOurokTOI/AAAAAAAAAIo/9FvQ9vtIDzw/s1600/AjaxBeginFormView.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="http://2.bp.blogspot.com/-MbuiTU8NMKU/TjkOurokTOI/AAAAAAAAAIo/9FvQ9vtIDzw/s1600/AjaxBeginFormView.PNG" t$="true" /></a></div>
+		<p>That’s it!! All you need to do is to enclose your form into an Ajax.BeginForm method wired with the necessary configurations. In this example the ajax form method takes care of wiring up submit form action to the given action method of the controller and update the result which it receives from the server using the <em>UpdateTargetId</em>. You can also play with the Ajax request by adding a loading animation as I have mentioned in <a href="/blog/2011/06/26/ajax-mvc3-ajax-part-ii-adding-animation/">Part II blog post</a>. <strong>Note:</strong> Dont forget to add references to the jQuery script files</p>
+		
+	 	<h4>Summary:</h4>
+		 <p>In this blog post we have seen a very basic way to create Ajax forms in ASP.NET MVC3. You can download the source code of this blog post from <a href="http://www.box.net/shared/kvktovzz5fiihtxemvr0">here</a></p>
+		</div>
+	</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/07/27/journey-towards-software-craftsmanship/">A Journey Towards Software Craftsmanship</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-07-27T00:00:00+05:30" pubdate data-updated="true">Jul 27<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/07/27/journey-towards-software-craftsmanship/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div><div><span ><p>Programming has been my passion right from the day I have seen computer. After nearly 3.7 years of experience (2 years of freelancing and 1.7 years of Industry), I found that there are lot of areas in programming where I need to improve myself especially in the art of software craftsmanship. Programming is really an art!!</p></span></div><div><span><p>Fine, I have the passion and wish to move to the next level but the key is get started and focussing my efforts on a right path. After some extensive internet searches and fruitful discussions with my colleagues, I have drawn a road map. I feel it is worth sharing through this blog as it might help someone who aspires to reach the next level in programming. </p></span></div><div><span><p>We can’t become Einstein in single night. We can’t become Sachin just by scoring a match winning century in a single match either. Likewise we can’t become a Master in Software Craftsmanship by just creating a single Killer Application. It takes a lot of efforts, passion, endurance persistence, temperament and a well-defined path to reach the top. </p></span></div><div><span><span>As a programmer/developer we all know very well about the benefits of Code Reuse. Have you ever thought of <i>Experience Reuse!! </i>Just think about it for some minutes. Obviously there is no replacement/substitute for Experience but what’s wrong in learning from others experience. It requires both hard work and smart work to make it to the next level. Here I am mentioning about smart work. Why are we doing the same mistakes which some people did already in their lives? <span style="mso-spacerun: yes;">&nbsp;</span>Why don’t we just learn it from them and get rid of those recurring mistakes. Come on, we are programmers, be smarter. Let’s learn from the some of the masters in the field and do some new mistakes.<div /><br/><p>Before start mentioning about those masters, I would like to thank my colleague “Jijesh Mohan” who has helped a lot and inspired me to start the journey (Now I hope, you will know what is mean by Experience Reuse). Here is the list of Masters.</p></span></div><ul><li><a href="http://blog.objectmentor.com/">Robert C Martin</a></li><li><a href="http://pragdave.pragprog.com/">Dave Thomas</a></li><li><a href="http://martinfowler.com/">Martin Fowler</a></li><li><a href="http://en.wikipedia.org/wiki/Ward_Cunningham">Ward Cunningham</a></li><li><a href="http://en.wikipedia.org/wiki/Kent_Beck">Kent Beck</a></li><li><a href="http://en.wikipedia.org/wiki/Grady_Booch">Grady Booch</a></li><li><a href="http://www.joelonsoftware.com/">Joel Spolsky</a></li><li><a href="http://www.catb.org/~esr/">Eric S Raymond</a></li></ul><div>One great thing about all these excellent folks is they share their knowledge, either through Books or through their blogs. We are very fortunate. Now it’s our turn to learn from their wisdom and move forward.</div> <br/><blockquote><p>The man who does not read good books has no advantage over the man who can&#8217;t read them.</p><footer><strong>Mark Twain</strong></footer></blockquote><div>I have found the following magnificent books in the quest</div><p><ul><li>Pragmatic Programmer – Andrew Hunt, Dave Thomas</li><ul><li>Must Read for every programmer. In my perspective it is the Bible of Programming</li></ul><li>Clean Code – Robert C Martin</li><li>Refactoring – Martin Fowler</li><li>Art of Unix Programming – Eric S Raymond</li></ul></p><div>I’ve read the Pragmatic Programmer and all others are in my “To-Read” list. I am really searching for words in dictionary to describe about “Pragmatic Programmer”. It is a “Gem”.</div><br /><div>When it comes to blogs, we have “Google Reader”. Just subscribe to the blog posts of these eminent people through Google Reader and learn the art of programming.</div><div>The stage has been setup. No one can ride bicycle by reading a book on “How to Ride Bicycle”. What books and blog posts would offer us is knowledge. In addition to knowledge to move further we need another thing called “Practice”. Yes get your hands dirty. Experiment, Research, Critique, Analyse, involve in healthy debates with your colleagues on various aspects of software craftsmanship, work and feel passionate about your work.</div><br/><div>I have pledged myself to follow the best practices in all my development works and no compromise on the quality of the code I write. In nutshell, I am going to care about my craft, think about my work and strive for excellence.</div><br/><div>I am in the very early stage of becoming a better programmer and looking forward to listen to your suggestions and inputs on this. When we grow older, we will be stronger. With all blessings and hope, the journey begins!</div> <br /></div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/07/13/observer-pattern-using-delegates-vs/">Observer Pattern Using Delegates v/s Observer Pattern Using Events and Delegates</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-07-13T00:00:00+05:30" pubdate data-updated="true">Jul 13<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/07/13/observer-pattern-using-delegates-vs/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+	<p>
+Most of the articles and texts in C# demonstrate the observer pattern using events and delegates. When going through one such text, a thought come across my mind. Why we are going for events when we can easily achieve the multicasting using Delegates alone. After some R&amp;D, I found it out why and hence this blog post. </p> <p>I am going to explain this “why” using a Weather Station example. To keep things simple, the Weather Station that we are going to see will keep track of only the temperature. Whenever the temperature changes, it simplify notifies its subscribers with the new temperature. Flash News is one of the subscribers which show the temperature in flash news. News Feed, another subscriber which adds the temperature information to the news feed. Fine, enough theory! It’s time to see the code.</p>
+<p>Here is the implementation of Observer Pattern using Delegates alone. </p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">namespace</span> <span class="nn">DelegatesAndEvents</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">WeatherStation</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">private</span> <span class="kt">int</span> <span class="n">_temperature</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">public</span> <span class="n">TemperatureReporter</span> <span class="n">Reporter</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="kt">int</span> <span class="n">Temperature</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">get</span> <span class="p">{</span> <span class="k">return</span> <span class="n">_temperature</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>            <span class="k">set</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">Reporter</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>                <span class="p">{</span>
+</span><span class='line'>                    <span class="n">Reporter</span><span class="p">(</span><span class="k">value</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="n">_tempearture</span> <span class="p">=</span> <span class="k">value</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">NewsFeed</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">AddTemperatureInfoToFeed</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;News Feed: New temperature &quot;</span> <span class="p">+</span> <span class="n">temperature</span> <span class="p">+</span> <span class="s">&quot; added to feed.&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="nf">NewsFeed</span><span class="p">(</span><span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">+=</span> <span class="n">AddTemperatureInfoToFeed</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">FlashNews</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">ShowTemperatureInfoInFlashNews</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Flash News: New temperature is &quot;</span> <span class="p">+</span> <span class="n">temperature</span> <span class="p">+</span> <span class="s">&quot;.&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="nf">FlashNews</span><span class="p">(</span><span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">+=</span> <span class="n">ShowTemperatureInfoInFlashNews</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+	<h4>The Main Program</h4>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">namespace</span> <span class="nn">DelegatesAndEvents</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">delegate</span> <span class="k">void</span> <span class="nf">TemperatureReporter</span><span class="p">(</span><span class="kt">int</span> <span class="n">tempearture</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">Program</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Observer Pattern Using Delegates</span>
+</span><span class='line'>            <span class="n">WeatherStation</span> <span class="n">weatherStation</span> <span class="p">=</span> <span class="k">new</span> <span class="n">WeatherStation</span><span class="p">();</span>
+</span><span class='line'>            <span class="n">FlashNews</span> <span class="n">flashNews</span> <span class="p">=</span> <span class="k">new</span> <span class="n">FlashNews</span><span class="p">(</span><span class="n">weatherStation</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">NewsFeed</span> <span class="n">newsFeed</span> <span class="p">=</span> <span class="k">new</span> <span class="n">NewsFeed</span><span class="p">(</span><span class="n">weatherStation</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Temperature</span> <span class="p">=</span> <span class="m">30</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Temperature</span> <span class="p">=</span> <span class="m">15</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Temperature</span> <span class="p">=</span> <span class="m">45</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<h4>The output</h4><div class="separator" style="clear: both; text-align: center;"><a href="http://1.bp.blogspot.com/-LjDx8rPsr50/Th0bSdtTyHI/AAAAAAAAAHk/dMBuF4GLgD0/s1600/delegates-output.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img src="http://1.bp.blogspot.com/-LjDx8rPsr50/Th0bSdtTyHI/AAAAAAAAAHk/dMBuF4GLgD0/s320/delegates-output.PNG" /></a></div>
+<p>Hurrah! It’s working as expected. Both subscribers are get notified. We can implement the observer pattern using delegates alone. Stop for a minute and go through the code, is the implementation robust? Kudos if you are able to find the shortcomings of this implementation. If not continue reading. </p> <p>Think of a world where everyone is good. There is no need of police, no need of court either. But it is not the case. You may wonder why I am mentioning this here. This analogy holds true for the objective of this blog post too. There is no need of using events in the c# programming world if all the subscribers are good. Miserably, here also it is not the case. Hence we are going for events instead of using delegates alone. </p>
+<h4>Drawbacks of using delegates alone</h4>
+<ul><li>A subscriber can replace other subscribers by reassigning the delegate</li><li>A subscriber can clear all other subscribers also (by setting the delegate to null). </li><li>A subscriber can broadcast to other subscribers by invoking the delegate</li></ul>Clearly all the above 3 drawbacks violates the Observer Pattern.Here is our evil subscriber code implementation. 
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">namespace</span> <span class="nn">DelegatesAndEvents</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">EvilSubscriber</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">EvilMessage</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;The temperature is &quot;</span> <span class="p">+</span> <span class="p">(</span><span class="n">temperature</span> <span class="p">*</span> <span class="m">100</span><span class="p">));</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="nf">EvilSubscriber</span><span class="p">(</span><span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Broadcast to all the subscriber</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span><span class="p">(</span><span class="m">60</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Reassign the subscriber            </span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">=</span> <span class="n">EvilMessage</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="c1">// Replace all the subscribers            </span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+<p>Hope now you understand the need of a better implementation of observer pattern. Here comes the salvage. Event! Use event along with delegates. With event in place, compiler will not allow the evil subscriber to get compiled. </p> 
+<h4>Robust implementation of Weather Station using events</h4>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">namespace</span> <span class="nn">DelegatesAndEvents</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">WeatherStation2</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">private</span> <span class="kt">int</span> <span class="n">_tempearture</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="k">event</span> <span class="n">TemperatureReporter</span> <span class="n">Reporter</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="kt">int</span> <span class="n">Temperature</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">get</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">return</span> <span class="n">_tempearture</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">set</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">Reporter</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>                <span class="p">{</span>
+</span><span class='line'>                    <span class="n">Reporter</span><span class="p">(</span><span class="k">value</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="n">_tempearture</span> <span class="p">=</span> <span class="k">value</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">NewsFeed2</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">AddTemperatureInfoToFeed</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;News Feed2: New temperature &quot;</span> <span class="p">+</span> <span class="n">temperature</span> <span class="p">+</span> <span class="s">&quot; added to feed.&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="nf">NewsFeed2</span><span class="p">(</span><span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">+=</span> <span class="n">AddTemperatureInfoToFeed</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">FlashNews2</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">ShowTemperatureInfoInFlashNews</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Flash News2: New temperature is &quot;</span> <span class="p">+</span> <span class="n">temperature</span> <span class="p">+</span> <span class="s">&quot;.&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">public</span> <span class="nf">FlashNews2</span><span class="p">(</span><span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span> <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">+=</span> <span class="n">ShowTemperatureInfoInFlashNews</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>    			
+</span></code></pre></td></tr></table></div></figure>
+
+<p>The unfortunate evil subscriber no longer compiles with events!</p> 
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">class</span> <span class="nc">EvilSubscriber2</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">public</span> <span class="k">void</span> <span class="nf">EvilMessage</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;The temperature is &quot;</span> <span class="p">+</span> <span class="p">(</span><span class="n">temperature</span> <span class="p">*</span> <span class="m">100</span><span class="p">));</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">public</span> <span class="nf">EvilSubscriber2</span><span class="p">(</span><span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Broadcast to all the subscriber         </span>
+</span><span class='line'>        <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span><span class="p">(</span><span class="m">60</span><span class="p">);</span> <span class="c1">// Compiler Error                </span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Reassign the subscriber                </span>
+</span><span class='line'>        <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">=</span> <span class="n">EvilMessage</span><span class="p">;</span> <span class="c1">// Compiler Error  </span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Replace all the subscribers                 </span>
+</span><span class='line'>        <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span> <span class="c1">// Compiler Error    </span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<br />
+You&nbsp;can download the source code from <a href="http://www.box.net/shared/kunno1y9noj26qodstnz">here</a></div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/06/26/ajax-mvc3-ajax-part-ii-adding-animation/">ASP.NET MVC3 Ajax Part II - Adding Animation to Action Link</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-26T00:00:00+05:30" pubdate data-updated="true">Jun 26<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/06/26/ajax-mvc3-ajax-part-ii-adding-animation/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div><p>This blog post is the continuation of my <a href="/blog/2011/06/24/aspnet-mvc-3-ajax-part-i/">previous blog post</a>. In the last blog post we have seen how to achieve the basic Ajax functionality using <em>Ajax.ActionLink()</em> helper method. Probably in many websites you might have seen whenever any ajax request is raised by the user, there would be an associated loading text or a loading gif will be displayed which inform the user that something is going on the background. We are now going to see how to achieve the same using the <em>ActionLink()</em> method.</p>
+	<p>
+	<em>ActionLink()</em> method uses a&nbsp;declarative approach to do this. All we need to do is to create a div element contains the element which will be displayed during the Ajax request and associate the div element to the <em>ActionLink()</em> method by assigning the &#8221;<em>LoadingElementId</em>&#8221; AjaxOption to the div element&#8217;s id. Let us see how to do this by using the MVC3 app that we have seen in the <a href="/blog/2011/06/24/aspnet-mvc-3-ajax-part-i/">previous blog post</a>.</p>
+	<h3>Adding Loading Div Element</h3>
+	Open &#8220;Index.cshtml&#8221; and append the following div. It just contains image element which will be displayed during ajax request.
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;divLoading&quot;</span> <span class="na">style=</span><span class="s">&quot;display:none&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>	<span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">&quot;../../Content/images/loading.gif&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+	<p>Note the inline style. The display has been set to none as it not intended to display only during Ajax request. </p>
+	<h3>Associate Div Element with <em>ActionLink()</em> method</h3>
+	<p>This is very simple. We just need to add the AjaxOption &#8221;<em>LoadingElementId</em>&#8221; and assign it to the loading div element&#8217;s id. The modified <em>ActionLink()</em> method will look as follows.</p><div class="separator" style="clear: both; text-align: center;"><a href="http://1.bp.blogspot.com/-6NlSqFH_RBU/TgbDPO7tB_I/AAAAAAAAAHc/BEEQT3XEWmQ/s1600/ActionLink+Method.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img src="http://1.bp.blogspot.com/-6NlSqFH_RBU/TgbDPO7tB_I/AAAAAAAAAHc/BEEQT3XEWmQ/s320/ActionLink+Method.png" /></a></div><br />
+	<h3>Simulating a delay in Action Method</h3><p>Now when we run the application we might not get a chance to see the loading gif as everything takes place is very less time. In order to see the loading gif, we need to increase the processing time taken by the GreetMe action method. The modified GreetMe action method in <em>HomeController.cs</em> will look as follows. The delay has been introduced by using the <em>Thread.Sleep()</em> method which delay the process by 2 seconds. </p>
+	<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="kt">string</span> <span class="nf">GreetMe</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">System</span><span class="p">.</span><span class="n">Threading</span><span class="p">.</span><span class="n">Thread</span><span class="p">.</span><span class="n">Sleep</span><span class="p">(</span><span class="m">2000</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s">&quot;Hello ASP.NET MVC3 Ajax !!&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+	<br />Now when we run the application we will be able to see the loading gif when the Greet Me link is clicked.
+	<h3>Summary</h3>In the Part i &amp; ii of this series we have seen a basic Ajax functionality using <em>Ajax.ActionLink()</em> method. The source code of the demo application can be downloaded from <a href="http://www.box.net/shared/zmn84rj31g2kdx19flxq">here</a>.</div></div></div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/06/24/aspnet-mvc-3-ajax-part-i/">ASP.NET MVC 3 Ajax - Part I</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-24T00:00:00+05:30" pubdate data-updated="true">Jun 24<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/06/24/aspnet-mvc-3-ajax-part-i/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div>In this blog series ASP.NET MVC3 Ajax we are going to explore about implementing Ajax features in ASP.NET MVC3 Web application and this blog post will cover the basics of ASP.NET MVC3 Ajax.<p>MVC3 makes use of <a href="http://en.wikipedia.org/wiki/Unobtrusive_JavaScript">Unobtrusive javascript</a> which results a clear and clean seperation between the functionality and the View/Presention of the webpage. We can introduce Ajax features to the MVC3 application using two ways.</p><ol><li><h5>Ajax Helper Methods</h5> - Enable us to achieve Ajax without writing no/less javascript</li><li><h5>jQuery Ajax</h5> - We need to write the code using javascript and jQuery ajax</li></ol><p>Ajax Helper Methods are very simple and intutive to get start with. So, I&#8217;ll be covering the Ajax Helper Methods and will cover the jQuery Ajax in the future posts of this blog series.</p><h4>Ajax Helper Methods</h4>It enables us to implement ajax feature without writing much code. <i>Ajax.ActionLink()</i> is one of the fundamental Ajax helper method that returns a anchor element (&lt;a&gt;&lt;/a&gt;) with the URL of the action method; When the action link is clicked, the action method in the specified URL is invoked asynchronously and result is sent back to the client. Let us see it in detail by using sample demo application.<ul><li>Create a new ASP.NET MVC3 Project &#8220;AjaxGettingStarted&#8221; </li><li>Select &#8221;<b>Empty</b>&#8221; template and &#8221;<b>Razor</b>&#8221; as view engine and click &#8221;<b>Ok</b>&#8221;</li><li>ASP.NET MVC3 project template shipped with the <b>scripts folder </b>which contains the all the jQuery library files that are required for doing Ajax and other client side functionalities. To implement ajax we should use the references of &#8220;jQuery&#8221; and &#8220;jQuery.unobtrusive-ajax&#8221; minified js files in our view<div><a href="http://4.bp.blogspot.com/-cYTipiOz2uQ/TgR_YKzsliI/AAAAAAAAAHU/R8X1FQYpAfM/s1600/2.+Scripts+Folder.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="320px" i$="true" src="http://4.bp.blogspot.com/-cYTipiOz2uQ/TgR_YKzsliI/AAAAAAAAAHU/R8X1FQYpAfM/s320/2.+Scripts+Folder.PNG" width="232px" /></a></div></li><a href="https://ch1blogs/blogs/211239/files/2011/06/2-scripts-folder.PNG" title="2-scripts-folder.PNG"></a>&nbsp;</li><li>Create a Controller with the name <em>HomeController</em> by right clicking the &#8220;Controllers&#8221; folder and select &#8220;Add&#8221; -&gt; &#8220;Controller&#8221;</li><li>The HomeController.cs file will be created under controllers folder with the following code.
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">class</span> <span class="nc">HomeController</span> <span class="p">:</span> <span class="n">Controller</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>	<span class="k">public</span> <span class="n">ActionResult</span> <span class="nf">Index</span><span class="p">()</span>
+</span><span class='line'>	<span class="p">{</span>
+</span><span class='line'>		<span class="k">return</span> <span class="nf">View</span><span class="p">();</span>
+</span><span class='line'>	<span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+</li><li>Then right click inside the Index() Action Method and select &#8220;Add View&#8221;. Leave the default setting and click &#8220;Add&#8221;.</li><li>This would create the view &#8220;Index.cshtml&#8221; under the folder &#8220;Views/Home&#8221;.</li><li>Add the following action method in HomeController.cs file
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="kt">string</span> <span class="nf">GreetMe</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="s">&quot;Hello ASP.NET MVC3 Ajax!!&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+This action method will be called asychronously called using Ajax.ActionLink helper method. This just written a string which will be displayed in the view via Ajax. </li></ul><ul><li>Add the script reference to the &#8220;jQuery&#8221; and &#8220;jQuery.unobtrusive-ajax&#8221; minified js files in Index.cshtml file.</li>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;@Url.Content(&quot;</span><span class="err">~/</span><span class="na">Scripts</span><span class="err">/</span><span class="na">jquery-1</span><span class="err">.</span><span class="na">5</span><span class="err">.</span><span class="na">1</span><span class="err">.</span><span class="na">min</span><span class="err">.</span><span class="na">js</span><span class="err">&quot;)&quot;</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;@Url.Content(&quot;</span><span class="err">~/</span><span class="na">Scripts</span><span class="err">/</span><span class="na">jquery</span><span class="err">.</span><span class="na">unobtrusive-ajax</span><span class="err">.</span><span class="na">js</span><span class="err">&quot;)&quot;</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+<li><p>Now all the setup in place to implement the basic Ajax functionality using Ajax.ActionLink Helper method. Before seeing this method in action let me explain bit more about this method. There are 12 overloads for this method amoung which the simplest one is </p> <em>Ajax.ActionLink(string linkText, string actionName, AjaxOptions ajaxOptions)</em> <p>The first parameter is the Link text which will be displayed in the view, the second parameter is the name of the action method which should be invoked while clicking the action link and the third parameter is AjaxOptions which defines how the Ajax request/response will take place and used to tell MVC exactly what you want your Ajax call to do.</p></li></ul><ul><li>AjaxOptions class will have the following properties
+<ol><li>Confirm - Gets or sets the message to display in a confirmation window before a request is submitted.</li><li>HttpMethod - Gets or sets the HTTP request method (&#8220;Get&#8221; or &#8220;Post&#8221;).</li>
+	<li>InsertionMode - Gets or sets the mode that specifies how to insert the response into the target DOM element</li><li>LoadingElementId - Gets or sets the id attribute of an HTML element that is displayed while the Ajax function is loading.</li><li>OnBegin - Gets or sets the name of the JavaScript function to call immediately before the page is updated. </li><li>OnComplete - Gets or sets the JavaScript function to call when response data has been instantiated but before the page is updated. </li><li>OnError - Gets or sets the JavaScript function to call if the page update fails.</li><li>OnSuccess - Gets or sets the JavaScript function to call after the page is successfully updated.</li><li>UpdateTargetId - Gets or sets the ID of the DOM element to update by using the response from the server.</li><li>URL - Gets or sets the URL to make the request to.</li></ol></li></ul><ul><li>In our sample demo application we are just going to have a link called &#8220;Greet Me&#8221;. Upon clicking on that click we are going make Ajax request to GreetMe action method and populate a div tag with the value returned by the action method</li><li>Add the following code in the index.cshtml file. which implements the above step.
+	<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;div id="divGreetings">
+</span><span class='line'>	@Ajax.ActionLink("Greet Me", "GreetMe", 
+</span><span class='line'>		new AjaxOptions() {
+</span><span class='line'>			UpdateTargetId="divGreetings", 
+</span><span class='line'>			HttpMethod="GET"                	
+</span><span class='line'>		}
+</span><span class='line'>	)
+</span><span class='line'>&lt;/div></span></code></pre></td></tr></table></div></figure>
+	This ActionLink method call just creates an Ajax action link with the text &#8220;Greet Me&#8221;, upon clicking the link it invoke the &#8220;GreetMe&#8221; action method name which we already defined in the HomeController with the ajax option &#8220;HttpGetRequest&#8221; and update the Dom element with id &#8220;divGreetings&#8221; with the results that we are getting from the GreetMe action method, which is a simple string &#8220;Hello ASP.NET MVC3 Ajax!!&#8221;</li></ul><div><div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-X90DCHXAEQQ/TgWJkXaXijI/AAAAAAAAAHY/pKzrPDNWNF4/s1600/3-output.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="102" src="http://3.bp.blogspot.com/-X90DCHXAEQQ/TgWJkXaXijI/AAAAAAAAAHY/pKzrPDNWNF4/s320/3-output.PNG" width="320" /></a></div><a href="https://ch1blogs/blogs/211239/files/2011/06/3-output.PNG" title="3-output.PNG"></a> </div>
+	<strong>Summary</strong><p>In this blog post we have implemented a basic ajax feature using Ajax.ActionLink helper method. In the <a href="/blog/2011/06/26/ajax-mvc3-ajax-part-ii-adding-animation/"> next blog post </a> of the series we would see how to add some add interative animation during the ajax request.</p></div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/04/24/dynamic-polymorphism-real-time-example/">Dynamic Polymorphism - a Real Time Example</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-04-24T00:00:00+05:30" pubdate data-updated="true">Apr 24<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/04/24/dynamic-polymorphism-real-time-example/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div><div><div><div><div><div>In this blog post we are going to see, how to achieve dynamic polymorphism in c# using interfaces through a small game simulator called &#8220;War&#8221;.<br /><br /><div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-F-5wRIWJiKE/TbOvdE6MOnI/AAAAAAAAAGM/r1vs5p8LzUE/s1600/WarForm.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="221px" src="http://3.bp.blogspot.com/-F-5wRIWJiKE/TbOvdE6MOnI/AAAAAAAAAGM/r1vs5p8LzUE/s320/WarForm.png" width="320px" /></a></div><br />
+<p>The simulator is simple and straight forward to play. The user just need to select a weapon and click on &#8220;Attack&#8221;.<br /> </br>
+<p>Let me explain some theoretical background about &#8220;Dynamic Polymorphism&#8221; before dive into implementing the Game simulator. To put in a simple terms, Dynamic Polymorphism means changing the behavior at run time. Let us see an example of what does it mean. If a dog smells a cat, it will bark and if it smells a food, it will salivate. Here, the smelling sense of the dog is same. But depending on what does it smell, it change its behavior. Hope now you are aware of what is mean by dynamic polymorphism. Just stop reading and think what is the dynamic polymorphic behavior here in the &#8220;War&#8221; simulator.</p>.<br />Yes, you are absolutely correct!! The Attacking behavior is the dynamic polymorphic behavior. The behavior of attack button will vary with respect to the weapon the user has chosen.&nbsp; <br /><br />Fine.. Lets dive into the code!!<br /><br /><h4>Step1: Design the Main Form</h4><ol><li>Create a new Windows Forms Application and name it as &#8220;War&#8221;</li><li>Rename the &#8220;Form1.cs&#8221; file to &#8220;MainForm.cs&#8221; and Click &#8220;Yes&#8221; to let the Visual Studio to do the renaming for you.</li><li>Add a groupbox control and change its &#8220;Text&#8221; Property to &#8220;Weapon&#8221;</li><li>Add three radio button controls inside the groupbox and change their &#8220;Text&#8221; Property to Sword, Gun and bomb respectively.</li><li>Add a button control and change its &#8220;Text&#8221; property to &#8220;Attack!!&#8221;.</li><li>Rename the &#8220;Name &#8221; property of all the controls added to some meaningful names like rboSword for Sword Radiobutton</li><li>The Final Finished will look like the screenshot in the beginning of this blog.&nbsp;&nbsp; </li></ol><h4>Step 2: Create an Interface called IWeapon</h4><ol><li>Right click on the Project name &#8220;War&#8221; in the solution explorer and add a new interface file called &#8220;IWeapon.cs&#8221;</li><li>This interface IWeapon will have a public method called &#8220;Attack&#8221; which defines a contract so that all the Weapon we are going to create should implement this IWeapon interface and provide the implementation code for the Attack() method</li></ol></div>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">interface</span> <span class="n">IWeapon</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">void</span> <span class="nf">Attack</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+</div><h4>Step3: Create the concrete Weapon Classes&nbsp;</h4><ol><li>Add three class files to the &#8220;War&#8221; Project with the names &#8220;Sword.cs&#8221;, &#8220;&#8221;Gun.cs&#8221;, &#8220;Bomb.cs&#8221;</li><li>These classes represents the actual weapons and that we are going use in our simulator. Each of these classes will implement the IWeapon interface and provide the implementation code for the &#8220;Attack()&#8221; method.</li><li>Modify the class files as follows</li></ol></div>
+<h6>Sword.cs</h6>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">class</span> <span class="nc">Sword</span> <span class="p">:</span> <span class="n">IWeapon</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">void</span> <span class="nf">Attack</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">System</span><span class="p">.</span><span class="n">Windows</span><span class="p">.</span><span class="n">Forms</span><span class="p">.</span><span class="n">MessageBox</span><span class="p">.</span><span class="n">Show</span><span class="p">(</span><span class="s">&quot;Sword!!&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<h6>Gun.cs</h6>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">class</span> <span class="nc">Gun</span> <span class="p">:</span> <span class="n">IWeapon</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">void</span> <span class="nf">Attack</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">System</span><span class="p">.</span><span class="n">Windows</span><span class="p">.</span><span class="n">Forms</span><span class="p">.</span><span class="n">MessageBox</span><span class="p">.</span><span class="n">Show</span><span class="p">(</span><span class="s">&quot;Gun!!&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+<h6>Bomb.cs</h6>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">class</span> <span class="nc">Bomb</span> <span class="p">:</span> <span class="n">IWeapon</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">public</span> <span class="k">void</span> <span class="nf">Attack</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">System</span><span class="p">.</span><span class="n">Windows</span><span class="p">.</span><span class="n">Forms</span><span class="p">.</span><span class="n">MessageBox</span><span class="p">.</span><span class="n">Show</span><span class="p">(</span><span class="s">&quot;Bomb!!&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+</div>
+The Attack() method will show a message box with a text saying the weapon name being used.<br /><br />
+<h4>Step 4: Program the &#8220;War&#8221; Simulator Main Form</h4><br />Now the stage is set for the real show. Let us wire the code of MainForm.cs and make the &#8220;War&#8221; simulator.<br /><ol><li>Add a private instance variable of type IWeapon in the MainForm class and initialize with the sword class. This will hold the reference of current weapon being used Note: Sword is the default weapon.
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">partial</span> <span class="k">class</span> <span class="nc">MainForm</span> <span class="p">:</span> <span class="n">Form</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>	<span class="k">private</span> <span class="n">IWeapon</span> <span class="n">weapon</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Sword</span><span class="p">();</span>	
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+</li>
+<li>Now we are going to add event handlers for the weapons radiobuttons. They will change the reference stored in the instance variable &#8220;weapon&#8221; to the respective Weapons class. Add the checked change event for all the radio button and their event handlers will look like as follows.
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">rboSword_CheckedChanged</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>	<span class="n">weapon</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Sword</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">rboGun_CheckedChanged</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>	<span class="n">weapon</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Gun</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">rboBomb_CheckedChanged</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>	<span class="n">weapon</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Bomb</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+	</li><li>Add the Click event handler for the &#8220;Attack&#8221; button. This event handler will simply call the Attack() method of the instance variable &#8220;weapon&#8221;<br />
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">btnAttack_Click</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>	<span class="n">weapon</span><span class="p">.</span><span class="n">Attack</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+</li></ol></div><b>Summary</b><br />In this blog we have seen a basic real time example on implementing dynamic polymorphism.<b> </b>You can download the source code of this sample from <a href="http://www.box.net/shared/y12zyr2d66">here</a>.</div></div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/04/01/entity-framework-40-as-class-library/">Entity Framework 4.0 as Class Library - Part 2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-04-01T00:00:00+05:30" pubdate data-updated="true">Apr 1<span>st</span>, 2011</time>
+        
+         | <a href="/blog/2011/04/01/entity-framework-40-as-class-library/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><div class='post'>
+<div></a>As the continuation of my previous <a href="/blog/2011/03/25/entity-framework-40-class-library-part/">blog post</a>, In this blog post we are going to explore on how to consume the data access class library created in the previous blog post.<p>Consuming the Data Access Library created using Entity Framework 4.0 involves the following two steps.<br /><ol><li>Adding reference to the class library</li><li>Adding the connection string in the config file (App.config or Web.config)</li></ol>Let us see how can we do these steps using a console application. To keep things simple I have opt for a console application. It holds the same for an ASP.NET , Windows Form, WPF,WCF, etc.</p><h3>Console Application Creation</h3>Create a new console application called &#8220;HrdConsoleApp&#8221;<br /><a href="http://1.bp.blogspot.com/-jd1uE7HyzUY/TZw4OSKgKVI/AAAAAAAAAFw/O0t-17BazAk/s1600/1.ConsoleAppCreation.PNG" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="221px" src="http://1.bp.blogspot.com/-jd1uE7HyzUY/TZw4OSKgKVI/AAAAAAAAAFw/O0t-17BazAk/s320/1.ConsoleAppCreation.PNG" width="320px" /></a><br /><a href="https://ch1blogs/blogs/211239/files/2011/04/1consoleappcreation.PNG" title="1consoleappcreation.PNG"></a><br /><br /><b>Add a reference to the Class library</b><br /><br />Right click on references and refer the class library &#8220;HRD.DataAccess&#8221; that we have created in the last blog. <br /><div class="separator" style="clear: both; text-align: center;"><a href="http://4.bp.blogspot.com/-238LBeCcS-8/TZw4UoXoTyI/AAAAAAAAAF0/Z-wMwpTZD1k/s1600/2.ReferenceLibrary.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="267px" src="http://4.bp.blogspot.com/-238LBeCcS-8/TZw4UoXoTyI/AAAAAAAAAF0/Z-wMwpTZD1k/s320/2.ReferenceLibrary.PNG" width="320px" /></a></div><b></b><br /><br />Add reference to System.Data.Entity Library<br /><a href="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s1600/5.DataEntityReference.PNG" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="267px" src="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s320/5.DataEntityReference.PNG" width="320px" /></a><a href="https://ch1blogs/blogs/211239/files/2011/04/5dataentityreference.PNG" title="5dataentityreference.PNG"><br /></a><br /><br />Add the App.Config file to the console application by right clicking on the project name in the solution explorer and select &#8220;Add-&gt;New Item&#8221;. Then Copy the connection string from the App.Config file created in the HrdDataAccess Class library Project created earlier and paste it in the App.config file created in the previous step.<br /><a href="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s1600/3.AppConfigCreation.PNG" style="clear: left; float: left; margin-bottom: 1em; margin-right: 1em;"><img src="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s320/3.AppConfigCreation.PNG" /></img><br /><p><a href="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s1600/5.DataEntityReference.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"></a></p>
+<a href="http://2.bp.blogspot.com/-HgFzRYacpQA/TZw6IqMd5oI/AAAAAAAAAGA/q_IiJsTNYvU/s1600/4.AppConfig.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img src="http://2.bp.blogspot.com/-HgFzRYacpQA/TZw6IqMd5oI/AAAAAAAAAGA/q_IiJsTNYvU/s320/4.AppConfig.PNG"/></a><a href="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s1600/3.AppConfigCreation.PNG" imageanchor="1"></a><p>Thats all now it is all set to access the database with only minimal amount of code.. Here we go!!</p><br /><h3>Code Please!</h3>
+<br />
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">using</span> <span class="nn">System</span><span class="p">;</span>
+</span><span class='line'><span class="k">using</span> <span class="nn">System.Linq</span><span class="p">;</span>
+</span><span class='line'><span class="k">using</span> <span class="nn">HRD.DataAccess</span><span class="p">;</span>
+</span><span class='line'><span class="k">namespace</span> <span class="nn">HrdConsoleApp</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">class</span> <span class="nc">Program</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>            <span class="kt">var</span> <span class="n">hrdEntities</span> <span class="p">=</span> <span class="k">new</span> <span class="n">HRDEntities</span><span class="p">();</span>
+</span><span class='line'>            <span class="k">foreach</span> <span class="p">(</span><span class="n">Employee</span> <span class="n">employee</span> <span class="k">in</span> <span class="n">hrdEntities</span><span class="p">.</span><span class="n">Employees</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">{</span>
+</span><span class='line'>                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Name: &quot;</span> <span class="p">+</span> <span class="n">employee</span><span class="p">.</span><span class="n">Name</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Department: &quot;</span> <span class="p">+</span> <span class="n">employee</span><span class="p">.</span><span class="n">Department</span><span class="p">.</span><span class="n">Name</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;########################&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+	<br /><b>Output</b> <br /><br /><div class="separator" style="clear: both; text-align: center;"><a href="http://1.bp.blogspot.com/-Fooy-W2-OCQ/TZw6M7tVqTI/AAAAAAAAAGE/tJ5UYVi5LRI/s1600/6.Output.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="161px" src="http://1.bp.blogspot.com/-Fooy-W2-OCQ/TZw6M7tVqTI/AAAAAAAAAGE/tJ5UYVi5LRI/s320/6.Output.PNG" width="320px" /></a></div><a href="https://ch1blogs/blogs/211239/files/2011/04/6output.PNG" title="6output.PNG"><br /></a><br /><br /><b>Summary:</b><br /><br />In this blog series (Part 1 and Part 2) we have seen how to create the data access layer using Entity Framework 4.0 as class library and how to consume it in an application. With the introduction of Entity Framework developing the code for data access layer is no longer a tidy and time consuming job!!</div></div>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/3/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>
+I&#8217;ve fell in love with programming on the very first day I&#8217;ve seen the computer. From there on , programming has been passion, hobby and literally everything. I am <em>Test Driven</em>, committed to write <strong>Clean Code</strong>
+</p>
+
+<p>I am an aspiring <em>Software Craftsman</em>, working hard and smart to become a <em>Better Programmer</em> and I enjoy learning, exploring, getting hands dirty on new and advanced technologies. </p> 
+
+<p>I adore changes, challenges, and things which keep me engaged and pushing me to the next level. I believe there is always a scope for getting better and it has no destination. I am fond of Knowledge sharing and mentoring</p>
+
+  <img alt="" height="91" id="Image2_img" src="http://4.bp.blogspot.com/-7NyiRNfxWGY/T9iU0JopacI/AAAAAAAAAbY/8HerSIg_NCU/s250/big-mvbbutton.png" width="200" style="visibility: visible;">
+</section><section>
+  <h1>Tag Cloud</h1>
+  	<div style="min-height:15px"></div>
+    <span id="tag-cloud" style="padding-top:20px"><a href='/blog/categories/asp-dot-net' style='font-size: 106.0%'>ASP.NET</a> <a href='/blog/categories/asp-dot-net-mvc' style='font-size: 160.0%'>ASP.NET MVC</a> <a href='/blog/categories/c-number' style='font-size: 124.0%'>C#</a> <a href='/blog/categories/craftsmanship' style='font-size: 124.0%'>Craftsmanship</a> <a href='/blog/categories/data-access' style='font-size: 118.0%'>Data Access</a> <a href='/blog/categories/entity-framework' style='font-size: 130.0%'>Entity Framework</a> <a href='/blog/categories/goals' style='font-size: 106.0%'>Goals</a> <a href='/blog/categories/javascript' style='font-size: 118.0%'>javascript</a> <a href='/blog/categories/jquery' style='font-size: 112.0%'>jQuery</a> <a href='/blog/categories/node-dot-js' style='font-size: 112.0%'>Node.js</a> <a href='/blog/categories/others' style='font-size: 106.0%'>Others</a> <a href='/blog/categories/programming' style='font-size: 136.0%'>Programming</a> <a href='/blog/categories/unit-testing' style='font-size: 130.0%'>Unit Testing</a> </span>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <p><a class="twitter-timeline" href="https://twitter.com/tamizhvendan" data-widget-id="328099727050678273">Tweets by @tamizhvendan</a></p>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Tamizhvendan S -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'tamizhvendan-blog';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+</body>
+</html>
