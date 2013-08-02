@@ -7,6 +7,20 @@ categories: fsharp
 ---
 <div class="post">
   <p>
-    When I first started learning fsharp, one of the astounding fact that hit my mind was "If the code compiles it usually works!". For a guy who is coming from C# and Java Programming background it was bit weird. 
+    When I first started learning fsharp, one of the astounding fact that hit my mind was <em>"If the code compiles it usually works!"</em> For a guy who is coming from C# and Java Programming background it was bit weird! After delving deep into f# I have found it very useful and inspired by its awesomeness. In this blog-post I'll be covering some of my experiences that I come across while learning this great feature!  
   </p>
+
+  <h3>Fever Diagnosis Program</h3>
+  <p>
+    Let us consider a simple fever diagnosis program. If your temperature is greater than 37.5 Celsius or 99.0 Fahrenheit then you are suffering from fever else you are all right.  
+  </p>
+
+  <h3>Defining Temperature Types</h3>
+  <p>One of the cool feature that I like about f# is its less verbosity. You can do lot of magic things with less lines code! Consider our fever diagnosis program, A temperature can be of type either Celsius or Fahrenheit. Here is the equivalent type defined in f#</p>
+
+  {% codeblock lang:fsharp %}
+type Temperature = 
+  | Celsius of double
+  | Fahrenheit of double  {% endcodeblock %}
+
 </div>
