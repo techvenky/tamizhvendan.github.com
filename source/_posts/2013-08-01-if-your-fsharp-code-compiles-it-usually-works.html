@@ -16,11 +16,19 @@ categories: fsharp
   </p>
 
   <h3>Defining Temperature Types</h3>
-  <p>One of the cool feature that I like about f# is its less verbosity. You can do lot of magic things with less lines code! Consider our fever diagnosis program, A temperature can be of type either Celsius or Fahrenheit. Here is the equivalent type defined in f#</p>
+  <p>One of the cool feature that I like about f# is its less verbosity. You can do lot of magic things with less lines of code! Consider our fever diagnosis program, A temperature can be of type either Celsius or Fahrenheit. Here is the equivalent type defined in f#</p>
 
   {% codeblock lang:fsharp %}
 type Temperature = 
   | Celsius of double
   | Fahrenheit of double  {% endcodeblock %}
+
+  <p>Just 3 lines of code!</p>
+  <p>The type Temperature has been defined as a <a href="http://msdn.microsoft.com/en-us/library/dd233226.aspx">discriminated union.</a> Discriminated unions represent data that can take on one of a few different types of results.</p> Also in this 3 lines we have described the strongly typed alias for temperature in both Celsius and in Fahrenheit. With this code in place if you want to describe a temperature in Celsius or in Fahrenheit all you need to use the following syntax
+
+  {% codeblock lang:fsharp %}
+let tempInCelsius = Celsius 10.8
+let tempInFahernheit = Fahrenheit 10.6
+  {% endcodeblock %}
 
 </div>
