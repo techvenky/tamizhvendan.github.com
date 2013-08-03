@@ -6,8 +6,9 @@ comments: true
 categories: fsharp
 ---
 <div class="post">
+
   <p>
-    When I first started learning fsharp, one of the astounding fact that hit my mind was <em>"If the code compiles it usually works!"</em> For a guy who is coming from C# and Java Programming background it was bit weird! After delving deep into f# I have found it very useful and inspired by its awesomeness. In this blog-post I'll be covering some of my experiences that I come across while learning this great feature!  
+    When I first started learning fsharp, one of the astounding fact that hit my mind was <em>"If the code compiles it usually works!"</em> For a guy who is coming from c# and Java Programming background it was bit weird! After delving deep into f# I have found it very useful and inspired by its awesomeness. In this blog-post I'll be covering some of my experiences that I come across while learning this great feature!  
   </p>
 
   <h3>Fever Diagnosis Program</h3>
@@ -24,11 +25,70 @@ type Temperature =
   | Fahrenheit of double  {% endcodeblock %}
 
   <p>Just 3 lines of code!</p>
-  <p>The type Temperature has been defined as a <a href="http://msdn.microsoft.com/en-us/library/dd233226.aspx">discriminated union.</a> Discriminated unions represent data that can take on one of a few different types of results.</p> Also in this 3 lines we have described the strongly typed alias for temperature in both Celsius and in Fahrenheit. With this code in place if you want to describe a temperature in Celsius or in Fahrenheit all you need to use the following syntax
+  <p>The type Temperature has been defined as a <a href="http://en.wikibooks.org/wiki/F_Sharp_Programming/Discriminated_Unions">discriminated union.</a> Discriminated unions represent data that can take on one of a few different types of results.</p> Also in this 3 lines we have described the strongly typed alias for temperature in both Celsius and in Fahrenheit. With this code in place if you want to describe a temperature in Celsius or in Fahrenheit all you need to use the following syntax
 
   {% codeblock lang:fsharp %}
 let tempInCelsius = Celsius 10.8
-let tempInFahernheit = Fahrenheit 10.6
-  {% endcodeblock %}
+let tempInFahernheit = Fahrenheit 10.6 {% endcodeblock %}
+
+  <p>By defining strongly typed cases like this we can make our code cleaner and preventing ourselves from various logic errors that we usually do when we interpret the values of these types. Though we can achieve the same in c# by the following code, it is very elegant to do in f# </p>
+
+  {% codeblock lang:csharp %}
+public abstract class Temperature 
+{
+  public double Value { get; private set; }
+
+  protected Temperature(double value) 
+  {
+    Value = value;
+  }
+}
+
+public class Celsius : Temperature
+{
+  public Celsius (double value) : base(value)
+  {
+
+  }
+}
+
+public class Fahrenheit : Temperature
+{
+  public Fahrenheit (double value) : base(value)
+  {
+    
+  }
+} 
+
+public class Program 
+{
+  public static void Main() 
+  {
+    Temperature tempInCelsius = new Celsius(10.8);
+    Temperature tempInFahernheit = new Fahrenheit(10.6);
+  }  
+}{% endcodeblock %}
+
+<p>34 lines of code to achieve the same!!</p>
+
+<h3>Let's diagnosis fever</h3>
+<p>With the types for the two representation of temperature in place, our next step is to check the values and find out whether the concerned person is having fever or not. You can do this in f# by using <a href="http://en.wikibooks.org/wiki/F_Sharp_Programming/Pattern_Matching_Basics">pattern matching</a></p>
+{% codeblock lang:fsharp %}
+let hasFever temperature =
+  match temperature with 
+  | Celsius value -> (value > 37.5)
+  | Fahrenheit value -> (value > 99.0) {% endcodeblock %}
+
+<p>f# automatically takes care of decomposing our data into appropriate data structure and all we need to concentrate on our business logic. For a beginner the syntax might look intimidating at first sight but if we use it quite some time you will fell in love with f#</p> 
+
+<h4>How can I call this function?</h4>
+{% codeblock lang:fsharp %}
+hasFever (Celsius 10.5)
+hasFever (Fahrenheit 22.5){% endcodeblock %}
+
+<p>Based on the type we are passing in the hasFever function, the corresponding pattern will be matched then the value is decomposed and verified with their respective numbers. Code is prettier, isn't it ?</p>
+
+<h3>What's the big deal in it?</h3>
+<p>You might think apart from reducing the lines of code what else f# adds ?. Great! I was exactly like you when I first come across it. Later I've found out it how it can us to save some hairs ;-) </p>
 
 </div>
