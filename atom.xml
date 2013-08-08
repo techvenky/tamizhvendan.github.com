@@ -4,7 +4,7 @@
   <title><![CDATA[Tamizh's Thoughts]]></title>
   <link href="http://tamizhvendan.github.com/atom.xml" rel="self"/>
   <link href="http://tamizhvendan.github.com/"/>
-  <updated>2013-07-30T16:16:39+05:30</updated>
+  <updated>2013-08-08T16:23:06+05:30</updated>
   <id>http://tamizhvendan.github.com/</id>
   <author>
     <name><![CDATA[Tamizhvendan S]]></name>
@@ -12,6 +12,159 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[If your fsharp code compiles it usually works]]></title>
+    <link href="http://tamizhvendan.github.com/blog/2013/08/08/if-your-fsharp-code-compiles-it-usually-works/"/>
+    <updated>2013-08-08T11:39:00+05:30</updated>
+    <id>http://tamizhvendan.github.com/blog/2013/08/08/if-your-fsharp-code-compiles-it-usually-works</id>
+    <content type="html"><![CDATA[<div class="post">
+
+  <p>
+    When I first started learning fsharp, one of the astounding fact that hit my mind was <em>&#8220;If the code compiles it usually works!&#8221;</em> For a guy who is coming from c# and java Programming background it was bit weird! After delving deep into f# I have found it very useful and inspired by its awesomeness. In this blog-post I&#8217;ll be covering some of my experiences that I come across while learning this great feature!  
+  </p>
+
+  <h3>Fever Diagnosis Program</h3>
+  <p>
+    Let us consider a simple fever diagnosis program. If your temperature is greater than 37.5 Celsius or 99.0 Fahrenheit then you are suffering from fever else you are all right.  
+  </p>
+
+  <h3>Defining Temperature Types</h3>
+  <p>One of the cool feature that I like about f# is its less verbosity. You can do lot of magic things with less lines of code! Consider our fever diagnosis program, A temperature can be either in Celsius or in Fahrenheit. Here is the equivalent type defined in f#</p>
+
+  <figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='fsharp'><span class='line'><span class="k">type</span> <span class="nc">Temperature</span> <span class="o">=</span>
+</span><span class='line'>  <span class="o">|</span> <span class="nc">Celsius</span> <span class="k">of</span> <span class="kt">double</span>
+</span><span class='line'>  <span class="o">|</span> <span class="nc">Fahrenheit</span> <span class="k">of</span> <span class="kt">double</span>
+</span></code></pre></td></tr></table></div></figure>
+
+  <p>Just 3 lines of code!</p>
+  <p>The type Temperature has been defined as a <a href="http://en.wikibooks.org/wiki/F_Sharp_Programming/Discriminated_Unions">discriminated union.</a> In brief, Discriminated union represent data that can take on one of a few different types of results.</p> <p>Also in this 3 lines we have described the strongly typed alias for temperature in both Celsius and in Fahrenheit. With this code in place if you want to describe a temperature in Celsius or in Fahrenheit all you need to use the following syntax</p>
+
+  <figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='fsharp'><span class='line'><span class="k">let</span> <span class="n">tempInCelsius</span> <span class="o">=</span> <span class="nc">Celsius</span> <span class="mi">10</span><span class="o">.</span><span class="mi">8</span>
+</span><span class='line'><span class="k">let</span> <span class="n">tempInFahernheit</span> <span class="o">=</span> <span class="nc">Fahrenheit</span> <span class="mi">10</span><span class="o">.</span><span class="mi">6</span>
+</span></code></pre></td></tr></table></div></figure>
+
+  <p>By defining strongly typed cases like this we can make our code cleaner and preventing ourselves from various logic errors that we usually do when we interpret the values of these types. Though we can achieve the same in c# by the following code, it is very elegant to do in f# </p>
+
+  <figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">abstract</span> <span class="k">class</span> <span class="nc">Temperature</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">public</span> <span class="kt">double</span> <span class="n">Value</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">protected</span> <span class="nf">Temperature</span><span class="p">(</span><span class="kt">double</span> <span class="k">value</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">Value</span> <span class="p">=</span> <span class="k">value</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">public</span> <span class="k">class</span> <span class="nc">Celsius</span> <span class="p">:</span> <span class="n">Temperature</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">public</span> <span class="nf">Celsius</span> <span class="p">(</span><span class="kt">double</span> <span class="k">value</span><span class="p">)</span> <span class="p">:</span> <span class="k">base</span><span class="p">(</span><span class="k">value</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">public</span> <span class="k">class</span> <span class="nc">Fahrenheit</span> <span class="p">:</span> <span class="n">Temperature</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">public</span> <span class="nf">Fahrenheit</span> <span class="p">(</span><span class="kt">double</span> <span class="k">value</span><span class="p">)</span> <span class="p">:</span> <span class="k">base</span><span class="p">(</span><span class="k">value</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">public</span> <span class="k">class</span> <span class="nc">Program</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">()</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">Temperature</span> <span class="n">tempInCelsius</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Celsius</span><span class="p">(</span><span class="m">10.8</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">Temperature</span> <span class="n">tempInFahernheit</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Fahrenheit</span><span class="p">(</span><span class="m">10.6</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+<p>34 lines of code to achieve the same!!</p>
+
+<h3>Let&#8217;s diagnosis fever</h3>
+<p>With the types for the two representation of temperature in place, our next step is to check the values and find out whether the concerned person is having fever or not. You can do this in f# by using <a href="http://en.wikibooks.org/wiki/F_Sharp_Programming/Pattern_Matching_Basics">pattern matching</a></p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='fsharp'><span class='line'><span class="k">let</span> <span class="n">hasFever</span> <span class="n">temperature</span> <span class="o">=</span>
+</span><span class='line'>  <span class="k">match</span> <span class="n">temperature</span> <span class="k">with</span>
+</span><span class='line'>  <span class="o">|</span> <span class="nc">Celsius</span> <span class="n">value</span> <span class="o">-&gt;</span> <span class="o">(</span><span class="n">value</span> <span class="o">&gt;</span> <span class="mi">37</span><span class="o">.</span><span class="mi">5</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">|</span> <span class="nc">Fahrenheit</span> <span class="n">value</span> <span class="o">-&gt;</span> <span class="o">(</span><span class="n">value</span> <span class="o">&gt;</span> <span class="mi">99</span><span class="o">.</span><span class="mi">0</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+<p>f# automatically takes care of decomposing our data into appropriate data structure and all we need to concentrate on our business logic. For a beginner the syntax might look intimidating at first sight but if we use it quite some time you will fell in love with f#</p> 
+
+<h4>How can I call this function?</h4>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='fsharp'><span class='line'><span class="n">hasFever</span> <span class="o">(</span><span class="nc">Celsius</span> <span class="mi">10</span><span class="o">.</span><span class="mi">5</span><span class="o">)</span>
+</span><span class='line'><span class="n">hasFever</span> <span class="o">(</span><span class="nc">Fahrenheit</span> <span class="mi">22</span><span class="o">.</span><span class="mi">5</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+<p>Based on the type we are passing in the hasFever function, the corresponding pattern will be matched then the value is decomposed and verified with their respective numbers. Code is prettier, isn&#8217;t it ?</p>
+
+<h3>What&#8217;s the big deal in it?</h3>
+<p>You might think apart from reducing the lines of code what else f# adds ?. Great! I was exactly like you when I first come across it. Later I&#8217;ve found out it how it can help us to save some hairs ;-) </p>
+
+<p>Let us assume that we forget to handle Fahrenheit in hasFever function</p>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='fsharp'><span class='line'><span class="k">let</span> <span class="n">hasFever</span> <span class="n">temperature</span> <span class="o">=</span>
+</span><span class='line'>  <span class="k">match</span> <span class="n">temperature</span> <span class="k">with</span>
+</span><span class='line'>  <span class="o">|</span> <span class="nc">Celsius</span> <span class="n">value</span> <span class="o">-&gt;</span> <span class="o">(</span><span class="n">value</span> <span class="o">&gt;</span> <span class="mi">37</span><span class="o">.</span><span class="mi">5</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+<p>Typically in C# if we missed to handle one of the cases like this we won&#8217;t be getting any compiler error and It&#8217;d crash the application in the runtime. But in f#, the above code would result in following compiler error</p>
+<pre>warning FS0025: Incomplete pattern matches on this expression, For example, the value 'Fahrenheit (_)' may indicate a case not covered by the pattern(s)</pre>
+<p>So, if you make any logical error like this is your f# code, compiler will show compile time errors and prevents you from building buggy code!</p>
+
+<h3>Summary</h3>
+<p>If you follow the idioms of f#, it will let you write a better code and even if do some logical error the compiler will come as a rescue!. You can check the source code live in <a href="http://www.tryfsharp.org/create/tamizhvendan/fever_diagnosis.fsx">tryfsharp</a> </p>
+</div>]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[A hybrid application using ASP.NET MVC3 and Node.js]]></title>
@@ -1155,59 +1308,6 @@ The Attack() method will show a message box with a text saying the weapon name b
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 </li></ol></div><b>Summary</b><br />In this blog we have seen a basic real time example on implementing dynamic polymorphism.<b> </b>You can download the source code of this sample from <a href="http://www.box.net/shared/y12zyr2d66">here</a>.</div></div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Entity Framework 4.0 As Class Library - Part 2]]></title>
-    <link href="http://tamizhvendan.github.com/blog/2011/04/01/entity-framework-40-as-class-library/"/>
-    <updated>2011-04-01T00:00:00+05:30</updated>
-    <id>http://tamizhvendan.github.com/blog/2011/04/01/entity-framework-40-as-class-library</id>
-    <content type="html"><![CDATA[<div class='post'>
-<div></a>As the continuation of my previous <a href="http://tamizhvendan.github.com/blog/2011/03/25/entity-framework-40-class-library-part/">blog post</a>, In this blog post we are going to explore on how to consume the data access class library created in the previous blog post.<p>Consuming the Data Access Library created using Entity Framework 4.0 involves the following two steps.<br /><ol><li>Adding reference to the class library</li><li>Adding the connection string in the config file (App.config or Web.config)</li></ol>Let us see how can we do these steps using a console application. To keep things simple I have opt for a console application. It holds the same for an ASP.NET , Windows Form, WPF,WCF, etc.</p><h3>Console Application Creation</h3>Create a new console application called &#8220;HrdConsoleApp&#8221;<br /><a href="http://1.bp.blogspot.com/-jd1uE7HyzUY/TZw4OSKgKVI/AAAAAAAAAFw/O0t-17BazAk/s1600/1.ConsoleAppCreation.PNG" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="221px" src="http://1.bp.blogspot.com/-jd1uE7HyzUY/TZw4OSKgKVI/AAAAAAAAAFw/O0t-17BazAk/s320/1.ConsoleAppCreation.PNG" width="320px" /></a><br /><a href="https://ch1blogs/blogs/211239/files/2011/04/1consoleappcreation.PNG" title="1consoleappcreation.PNG"></a><br /><br /><b>Add a reference to the Class library</b><br /><br />Right click on references and refer the class library &#8220;HRD.DataAccess&#8221; that we have created in the last blog. <br /><div class="separator" style="clear: both; text-align: center;"><a href="http://4.bp.blogspot.com/-238LBeCcS-8/TZw4UoXoTyI/AAAAAAAAAF0/Z-wMwpTZD1k/s1600/2.ReferenceLibrary.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="267px" src="http://4.bp.blogspot.com/-238LBeCcS-8/TZw4UoXoTyI/AAAAAAAAAF0/Z-wMwpTZD1k/s320/2.ReferenceLibrary.PNG" width="320px" /></a></div><b></b><br /><br />Add reference to System.Data.Entity Library<br /><a href="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s1600/5.DataEntityReference.PNG" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="267px" src="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s320/5.DataEntityReference.PNG" width="320px" /></a><a href="https://ch1blogs/blogs/211239/files/2011/04/5dataentityreference.PNG" title="5dataentityreference.PNG"><br /></a><br /><br />Add the App.Config file to the console application by right clicking on the project name in the solution explorer and select &#8220;Add-&gt;New Item&#8221;. Then Copy the connection string from the App.Config file created in the HrdDataAccess Class library Project created earlier and paste it in the App.config file created in the previous step.<br /><a href="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s1600/3.AppConfigCreation.PNG" style="clear: left; float: left; margin-bottom: 1em; margin-right: 1em;"><img src="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s320/3.AppConfigCreation.PNG" /></img><br /><p><a href="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s1600/5.DataEntityReference.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"></a></p>
-<a href="http://2.bp.blogspot.com/-HgFzRYacpQA/TZw6IqMd5oI/AAAAAAAAAGA/q_IiJsTNYvU/s1600/4.AppConfig.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img src="http://2.bp.blogspot.com/-HgFzRYacpQA/TZw6IqMd5oI/AAAAAAAAAGA/q_IiJsTNYvU/s320/4.AppConfig.PNG"/></a><a href="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s1600/3.AppConfigCreation.PNG" imageanchor="1"></a><p>Thats all now it is all set to access the database with only minimal amount of code.. Here we go!!</p><br /><h3>Code Please!</h3>
-<br />
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">using</span> <span class="nn">System</span><span class="p">;</span>
-</span><span class='line'><span class="k">using</span> <span class="nn">System.Linq</span><span class="p">;</span>
-</span><span class='line'><span class="k">using</span> <span class="nn">HRD.DataAccess</span><span class="p">;</span>
-</span><span class='line'><span class="k">namespace</span> <span class="nn">HrdConsoleApp</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">Program</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="kt">var</span> <span class="n">hrdEntities</span> <span class="p">=</span> <span class="k">new</span> <span class="n">HRDEntities</span><span class="p">();</span>
-</span><span class='line'>            <span class="k">foreach</span> <span class="p">(</span><span class="n">Employee</span> <span class="n">employee</span> <span class="k">in</span> <span class="n">hrdEntities</span><span class="p">.</span><span class="n">Employees</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Name: &quot;</span> <span class="p">+</span> <span class="n">employee</span><span class="p">.</span><span class="n">Name</span><span class="p">);</span>
-</span><span class='line'>                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Department: &quot;</span> <span class="p">+</span> <span class="n">employee</span><span class="p">.</span><span class="n">Department</span><span class="p">.</span><span class="n">Name</span><span class="p">);</span>
-</span><span class='line'>                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;########################&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-	<br /><b>Output</b> <br /><br /><div class="separator" style="clear: both; text-align: center;"><a href="http://1.bp.blogspot.com/-Fooy-W2-OCQ/TZw6M7tVqTI/AAAAAAAAAGE/tJ5UYVi5LRI/s1600/6.Output.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="161px" src="http://1.bp.blogspot.com/-Fooy-W2-OCQ/TZw6M7tVqTI/AAAAAAAAAGE/tJ5UYVi5LRI/s320/6.Output.PNG" width="320px" /></a></div><a href="https://ch1blogs/blogs/211239/files/2011/04/6output.PNG" title="6output.PNG"><br /></a><br /><br /><b>Summary:</b><br /><br />In this blog series (Part 1 and Part 2) we have seen how to create the data access layer using Entity Framework 4.0 as class library and how to consume it in an application. With the introduction of Entity Framework developing the code for data access layer is no longer a tidy and time consuming job!!</div></div>
 ]]></content>
   </entry>
   

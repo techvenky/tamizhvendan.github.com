@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Data Access | Tamizh's Thoughts]]></title>
   <link href="http://tamizhvendan.github.com/blog/categories/data-access/atom.xml" rel="self"/>
   <link href="http://tamizhvendan.github.com/"/>
-  <updated>2013-07-30T16:16:39+05:30</updated>
+  <updated>2013-08-08T16:24:18+05:30</updated>
   <id>http://tamizhvendan.github.com/</id>
   <author>
     <name><![CDATA[Tamizhvendan S]]></name>
@@ -14,117 +14,36 @@
 
   
   <entry>
-    <title type="html"><![CDATA[EF Code First 4.1  in Console Application]]></title>
-    <link href="http://tamizhvendan.github.com/blog/2011/08/04/ef-code-first-41-in-console-application/"/>
-    <updated>2011-08-04T00:00:00+05:30</updated>
-    <id>http://tamizhvendan.github.com/blog/2011/08/04/ef-code-first-41-in-console-application</id>
-    <content type="html"><![CDATA[<div class='post'>
-<div>
-        <p>Whenever I learn any new things in .Net or experimenting with something, I always prefer to use <em>Console Applications.</em> I personally feel it helps me to concentrate more on what actually I am trying to learn or experiment without any sort of distractions. Moreover it keeps things simple. </p>
-    
-        <p>I would like to do the same while learning EF Code First 4.1. Though most of articles in web explain EF with respect to ASP.NET MVC, I favor learning it through my own way using console application without creating any controllers and views!!</p>
-    
-    <h4>Following are the prerequisites to work with EF Code First 4.1</h4>
-    <ul>
-        <li>
-            <a href="http://weblogs.asp.net/scottgu/archive/2011/03/15/visual-studio-2010-sp1.aspx">Visual Studio 2010 SP1</a>
-        </li>
-        <li>
-            <a href="http://blogs.msdn.com/b/adonet/archive/2011/04/11/ef-4-1-released.aspx">Entity Framework 4.1</a>
-        </li>
-        <li>
-            <a href="http://weblogs.asp.net/scottgu/archive/2011/01/11/vs-2010-sp1-and-sql-ce.aspx">SQL CE</a> or SQL Express (SQL CE would be an ideal option for learning purpose)
-        </li>
-            
-    </ul>
-
-    <h4>Show me the Code!</h4>
-        <p>After creating a console application project, the initial step would be adding references to the following assemblies.
-            <ul>    
-                <li>EntityFramework (Version 4.1)</li>
-                <li>System.Data.Entity</li>
-                <li>System.ComponentModel.DataAnnotations</li>
-            </ul>   
-        </p>    
-        
-        <p>Now it’s time to defining the model and the data context. To keep it simple, I am going to define only one model “User”.</p>
-            <a href="http://4.bp.blogspot.com/-FxoouXlWKxw/TjqAva1qsWI/AAAAAAAAAJM/5PLCVnNFhDQ/s1600/User.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="260px" src="http://4.bp.blogspot.com/-FxoouXlWKxw/TjqAva1qsWI/AAAAAAAAAJM/5PLCVnNFhDQ/s320/User.PNG" t$="true" width="320px" /></a>
-        <p>The data context would be as following.</p>
-
-        <a href="http://3.bp.blogspot.com/-2pLPCQePVKY/TjqAwJ-QD4I/AAAAAAAAAJU/X66hDdCw6eo/s1600/MyDataContext.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="169px" src="http://3.bp.blogspot.com/-2pLPCQePVKY/TjqAwJ-QD4I/AAAAAAAAAJU/X66hDdCw6eo/s320/MyDataContext.PNG" t$="true" width="320px" /></a>
-        <p>This basic infrastructure is sufficient to run the console application. However as we are using the data context for learning purpose, we might change the model often and doing so will make it inconsistent with the database created automatically when you run the application for the first time. </p>
-        <p> We can circumvent this situation by creating new Data Context initialize class that inherits from <em>DropCreateDatabaseIfModelChanges</em>&lt;TContext&gt; where TContext is the data context that you want to sync with the database always. This class also offers an override function <em>“Seed”</em> using which we can fill the database with some initial data.</p>
-
-        <p>The finished code of DataContext initialize class will be like the following.</p>
-        <a href="http://2.bp.blogspot.com/-fFqQJzPBGkY/TjqAwOW4nMI/AAAAAAAAAJY/DDY_VyYQHfI/s1600/MyDataContextInit.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="262px" src="http://2.bp.blogspot.com/-fFqQJzPBGkY/TjqAwOW4nMI/AAAAAAAAAJY/DDY_VyYQHfI/s320/MyDataContextInit.PNG" t$="true" width="320px" /></a>
-        <p>This datacontext initialize class would create the database whenever the database model changes and create two users by default. Now it’s time to code our Main method.</p>
-        <p>Here we go. Pay close attention to the first statement in the Main method that initializes the database with an instance of DataContextInit class that we have created.</p>
-        <a href="http://4.bp.blogspot.com/-jl5r5Sk7m0Q/TjqAvdAJRPI/AAAAAAAAAJQ/elZcjzTNgEE/s1600/EFConsoleApp.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="223px" src="http://4.bp.blogspot.com/-jl5r5Sk7m0Q/TjqAvdAJRPI/AAAAAAAAAJQ/elZcjzTNgEE/s320/EFConsoleApp.PNG" t$="true" width="320px" /></a>
-        
-        <p>Now you can run the application without any configurations. The default behavior of EF Code First will create the database with the same name as your data context name here “MyDataContext” in the SQL Express server installed in the local machine. If you wish to change this default behavior and wanted to use SQL CE instead of SQL Express just add an App.Config to the project and create a connection string with the name of your data context as follows.</p>
-
-        <a href="http://4.bp.blogspot.com/-YUZyAGX2KyA/TjqAvBuEd4I/AAAAAAAAAJI/p_UjE-K_lR8/s1600/Configuration.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="65px" src="http://4.bp.blogspot.com/-YUZyAGX2KyA/TjqAvBuEd4I/AAAAAAAAAJI/p_UjE-K_lR8/s320/Configuration.PNG" t$="true" width="320px" /></a>
-
-        <p>That’s it. “Ctrl+F5” and here is the output</p>
-
-        <a href="http://3.bp.blogspot.com/-l0IfgWCGZfQ/TjqAwX_8pnI/AAAAAAAAAJc/RLcjASqgaBo/s1600/Output.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="117px" src="http://3.bp.blogspot.com/-l0IfgWCGZfQ/TjqAwX_8pnI/AAAAAAAAAJc/RLcjASqgaBo/s320/Output.PNG" t$="true" width="320px" /></a>
-
-        <h4>Summary</h4>
-        <p>In this blog post we have explore the basic foundation on how to work with EF CodeFirst using console application. If you want to get your dirty with EF Code First without any distraction Console Application is a better one. You can download the sample code used in this blog post from <a href="http://www.box.net/shared/s0yu8b4sebp3dh9ru5gb">here.</a>
-        </div>
-    </div>
-
-]]></content>
-  </entry>
-  
-  <entry>
     <title type="html"><![CDATA[Entity Framework 4.0 As Class Library - Part 2]]></title>
     <link href="http://tamizhvendan.github.com/blog/2011/04/01/entity-framework-40-as-class-library/"/>
     <updated>2011-04-01T00:00:00+05:30</updated>
     <id>http://tamizhvendan.github.com/blog/2011/04/01/entity-framework-40-as-class-library</id>
     <content type="html"><![CDATA[<div class='post'>
-<div></a>As the continuation of my previous <a href="/blog/2011/03/25/entity-framework-40-class-library-part/">blog post</a>, In this blog post we are going to explore on how to consume the data access class library created in the previous blog post.<p>Consuming the Data Access Library created using Entity Framework 4.0 involves the following two steps.<br /><ol><li>Adding reference to the class library</li><li>Adding the connection string in the config file (App.config or Web.config)</li></ol>Let us see how can we do these steps using a console application. To keep things simple I have opt for a console application. It holds the same for an ASP.NET , Windows Form, WPF,WCF, etc.</p><h3>Console Application Creation</h3>Create a new console application called "HrdConsoleApp"<br /><a href="http://1.bp.blogspot.com/-jd1uE7HyzUY/TZw4OSKgKVI/AAAAAAAAAFw/O0t-17BazAk/s1600/1.ConsoleAppCreation.PNG" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="221px" src="http://1.bp.blogspot.com/-jd1uE7HyzUY/TZw4OSKgKVI/AAAAAAAAAFw/O0t-17BazAk/s320/1.ConsoleAppCreation.PNG" width="320px" /></a><br /><a href="https://ch1blogs/blogs/211239/files/2011/04/1consoleappcreation.PNG" title="1consoleappcreation.PNG"></a><br /><br /><b>Add a reference to the Class library</b><br /><br />Right click on references and refer the class library "HRD.DataAccess" that we have created in the last blog. <br /><div class="separator" style="clear: both; text-align: center;"><a href="http://4.bp.blogspot.com/-238LBeCcS-8/TZw4UoXoTyI/AAAAAAAAAF0/Z-wMwpTZD1k/s1600/2.ReferenceLibrary.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="267px" src="http://4.bp.blogspot.com/-238LBeCcS-8/TZw4UoXoTyI/AAAAAAAAAF0/Z-wMwpTZD1k/s320/2.ReferenceLibrary.PNG" width="320px" /></a></div><b></b><br /><br />Add reference to System.Data.Entity Library<br /><a href="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s1600/5.DataEntityReference.PNG" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="267px" src="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s320/5.DataEntityReference.PNG" width="320px" /></a><a href="https://ch1blogs/blogs/211239/files/2011/04/5dataentityreference.PNG" title="5dataentityreference.PNG"><br /></a><br /><br />Add the App.Config file to the console application by right clicking on the project name in the solution explorer and select "Add-&gt;New Item". Then Copy the connection string from the App.Config file created in the HrdDataAccess Class library Project created earlier and paste it in the App.config file created in the previous step.<br /><a href="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s1600/3.AppConfigCreation.PNG" style="clear: left; float: left; margin-bottom: 1em; margin-right: 1em;"><img src="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s320/3.AppConfigCreation.PNG" /></img><br /><p><a href="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s1600/5.DataEntityReference.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"></a></p>
+<div></a>As the continuation of my previous <a href="{% post_url 2011-03-25-entity-framework-40-class-library-part %}">blog post</a>, In this blog post we are going to explore on how to consume the data access class library created in the previous blog post.<p>Consuming the Data Access Library created using Entity Framework 4.0 involves the following two steps.<br /><ol><li>Adding reference to the class library</li><li>Adding the connection string in the config file (App.config or Web.config)</li></ol>Let us see how can we do these steps using a console application. To keep things simple I have opt for a console application. It holds the same for an ASP.NET , Windows Form, WPF,WCF, etc.</p><h3>Console Application Creation</h3>Create a new console application called "HrdConsoleApp"<br /><a href="http://1.bp.blogspot.com/-jd1uE7HyzUY/TZw4OSKgKVI/AAAAAAAAAFw/O0t-17BazAk/s1600/1.ConsoleAppCreation.PNG" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="221px" src="http://1.bp.blogspot.com/-jd1uE7HyzUY/TZw4OSKgKVI/AAAAAAAAAFw/O0t-17BazAk/s320/1.ConsoleAppCreation.PNG" width="320px" /></a><br /><a href="https://ch1blogs/blogs/211239/files/2011/04/1consoleappcreation.PNG" title="1consoleappcreation.PNG"></a><br /><br /><b>Add a reference to the Class library</b><br /><br />Right click on references and refer the class library "HRD.DataAccess" that we have created in the last blog. <br /><div class="separator" style="clear: both; text-align: center;"><a href="http://4.bp.blogspot.com/-238LBeCcS-8/TZw4UoXoTyI/AAAAAAAAAF0/Z-wMwpTZD1k/s1600/2.ReferenceLibrary.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="267px" src="http://4.bp.blogspot.com/-238LBeCcS-8/TZw4UoXoTyI/AAAAAAAAAF0/Z-wMwpTZD1k/s320/2.ReferenceLibrary.PNG" width="320px" /></a></div><b></b><br /><br />Add reference to System.Data.Entity Library<br /><a href="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s1600/5.DataEntityReference.PNG" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="267px" src="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s320/5.DataEntityReference.PNG" width="320px" /></a><a href="https://ch1blogs/blogs/211239/files/2011/04/5dataentityreference.PNG" title="5dataentityreference.PNG"><br /></a><br /><br />Add the App.Config file to the console application by right clicking on the project name in the solution explorer and select "Add-&gt;New Item". Then Copy the connection string from the App.Config file created in the HrdDataAccess Class library Project created earlier and paste it in the App.config file created in the previous step.<br /><a href="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s1600/3.AppConfigCreation.PNG" style="clear: left; float: left; margin-bottom: 1em; margin-right: 1em;"><img src="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s320/3.AppConfigCreation.PNG" /></img><br /><p><a href="http://4.bp.blogspot.com/-TIhl2OiTt68/TZw59TQrQ6I/AAAAAAAAAF8/WM5ffjSpETo/s1600/5.DataEntityReference.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"></a></p>
 <a href="http://2.bp.blogspot.com/-HgFzRYacpQA/TZw6IqMd5oI/AAAAAAAAAGA/q_IiJsTNYvU/s1600/4.AppConfig.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img src="http://2.bp.blogspot.com/-HgFzRYacpQA/TZw6IqMd5oI/AAAAAAAAAGA/q_IiJsTNYvU/s320/4.AppConfig.PNG"/></a><a href="http://2.bp.blogspot.com/-ZqMXJ5KdLy8/TZw4Y1uECQI/AAAAAAAAAF4/fIcRIy1se5c/s1600/3.AppConfigCreation.PNG" imageanchor="1"></a><p>Thats all now it is all set to access the database with only minimal amount of code.. Here we go!!</p><br /><h3>Code Please!</h3>
 <br />
-<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">using</span> <span class="nn">System</span><span class="p">;</span>
-</span><span class='line'><span class="k">using</span> <span class="nn">System.Linq</span><span class="p">;</span>
-</span><span class='line'><span class="k">using</span> <span class="nn">HRD.DataAccess</span><span class="p">;</span>
-</span><span class='line'><span class="k">namespace</span> <span class="nn">HrdConsoleApp</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">Program</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="kt">var</span> <span class="n">hrdEntities</span> <span class="p">=</span> <span class="k">new</span> <span class="n">HRDEntities</span><span class="p">();</span>
-</span><span class='line'>            <span class="k">foreach</span> <span class="p">(</span><span class="n">Employee</span> <span class="n">employee</span> <span class="k">in</span> <span class="n">hrdEntities</span><span class="p">.</span><span class="n">Employees</span><span class="p">)</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Name: &quot;</span> <span class="p">+</span> <span class="n">employee</span><span class="p">.</span><span class="n">Name</span><span class="p">);</span>
-</span><span class='line'>                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Department: &quot;</span> <span class="p">+</span> <span class="n">employee</span><span class="p">.</span><span class="n">Department</span><span class="p">.</span><span class="n">Name</span><span class="p">);</span>
-</span><span class='line'>                <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;########################&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+{% codeblock lang:csharp %}
+
+using System;
+using System.Linq;
+using HRD.DataAccess;
+namespace HrdConsoleApp
+{
+    class Program
+    { 
+        static void Main(string[] args) 
+        { 
+            var hrdEntities = new HRDEntities(); 
+            foreach (Employee employee in hrdEntities.Employees)
+            { 
+                Console.WriteLine("Name: " + employee.Name); 
+                Console.WriteLine("Department: " + employee.Department.Name); 
+                Console.WriteLine("########################"); 
+            } 
+        } 
+    }
+}
+{% endcodeblock %}
 
     <br /><b>Output</b> <br /><br /><div class="separator" style="clear: both; text-align: center;"><a href="http://1.bp.blogspot.com/-Fooy-W2-OCQ/TZw6M7tVqTI/AAAAAAAAAGE/tJ5UYVi5LRI/s1600/6.Output.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="161px" src="http://1.bp.blogspot.com/-Fooy-W2-OCQ/TZw6M7tVqTI/AAAAAAAAAGE/tJ5UYVi5LRI/s320/6.Output.PNG" width="320px" /></a></div><a href="https://ch1blogs/blogs/211239/files/2011/04/6output.PNG" title="6output.PNG"><br /></a><br /><br /><b>Summary:</b><br /><br />In this blog series (Part 1 and Part 2) we have seen how to create the data access layer using Entity Framework 4.0 as class library and how to consume it in an application. With the introduction of Entity Framework developing the code for data access layer is no longer a tidy and time consuming job!!</div></div>
 

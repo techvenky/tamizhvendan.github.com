@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Programming | Tamizh's Thoughts]]></title>
   <link href="http://tamizhvendan.github.com/blog/categories/programming/atom.xml" rel="self"/>
   <link href="http://tamizhvendan.github.com/"/>
-  <updated>2013-07-30T16:16:39+05:30</updated>
+  <updated>2013-08-08T16:24:18+05:30</updated>
   <id>http://tamizhvendan.github.com/</id>
   <author>
     <name><![CDATA[Tamizhvendan S]]></name>
@@ -12,463 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[An interesting JSON Model Binding behaviour in ASP.NET MVC3]]></title>
-    <link href="http://tamizhvendan.github.com/blog/2012/04/13/interesting-json-model-binding/"/>
-    <updated>2012-04-13T00:00:00+05:30</updated>
-    <id>http://tamizhvendan.github.com/blog/2012/04/13/interesting-json-model-binding</id>
-    <content type="html"><![CDATA[<div class='post'>
-<p><strong>Introduction</strong></p> <p><a href="http://msdn.microsoft.com/en-us/library/dd410405.aspx">Model Binding</a> is one of the coolest feature in ASP.NET MVC3. Like a magic wand, your form element values, <a href="http://www.json.org/">JSON values</a>, also query string values automatically get converted to the equivalent C# object and makes the life of the developer easier.</p> <p>The default behaviour of MVC3 model binding works well in more common scenarios. But in certain cases it wont work as expected, and in such situations we need to <a href="http://odetocode.com/blogs/scott/archive/2009/04/27/6-tips-for-asp-net-mvc-model-binding.aspx">write custom model binders</a>. Two weeks before while I was working with model binding on JSON values, I’ve encountered an interesting behaviour of JSON model binding. </p> <p>If a JSON property contains a string, it get bind to a string property of the equivalent C# object. But if that same JSON property contains a empty string, while model binding, the equivalent C# object’s property is assigned to null and not to empty string! The same happened with arrays. If it contains elements, it get bind without any problems. But if the array is empty it get bind to null!!</p> <p>In this blog post, we are going to get rid of this intriguing behaviour by writing a Custom JSON model binder. Hope it would be useful and save you some hairs <img style="border-bottom-style: none; border-left-style: none; border-top-style: none; border-right-style: none" class="wlEmoticon wlEmoticon-smile" alt="Smile" src="http://lh4.ggpht.com/-hMLWJJ1A8N0/T4dGoWX_KJI/AAAAAAAAAUw/nCxcTP1Y03E/wlEmoticon-smile%25255B2%25255D.png?imgmax=800">&nbsp;</p> <p><strong>The Sample Application – “MyMobileStore”</strong></p> <p>In this blog post we are going to see a small application called “MyMobileStore”. This sample app has two features. One will help you to search the mobiles in the “MyMobileStore” by using the company name and the mobile types. An another feature will help you to find out the sales details of the mobiles from a given company for the specified mobile types.</p> <p><strong>Show me the code</strong></p> <p>Core classes</p> <p><a href="http://lh3.ggpht.com/-fxMWjV8D8Ss/T4dGqZvq7SI/AAAAAAAAAU4/P0S_EsPCuMk/s1600-h/MobileStore.Models%25255B6%25255D.png"><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="MobileStore.Models" border="0" alt="MobileStore.Models" src="http://lh6.ggpht.com/-3-BF9lnW55U/T4dG2YfBOBI/AAAAAAAAAVA/bTqAuVRhIE0/MobileStore.Models_thumb%25255B4%25255D.png?imgmax=800" width="586" height="465"></a>&nbsp;</p> <p>As mentioned earlier, the two features of “MyMobileStore” are exposed as controller action methods as below</p> <p><a href="http://lh5.ggpht.com/-vw3lgopcU68/T4dG-qsPNYI/AAAAAAAAAVI/pP6ELrufEbs/s1600-h/MobileStore.Controller%25255B22%25255D.png"><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="MobileStore.Controller" border="0" alt="MobileStore.Controller" src="http://lh5.ggpht.com/-YFmmpU3XOsg/T4dHDro__YI/AAAAAAAAAVQ/c1Chj14oXis/MobileStore.Controller_thumb%25255B14%25255D.png?imgmax=800" width="622" height="313"></a></p> <p>Both action methods uses a parameter of type “MobileFilter” which actually holds the filter criteria for finding out the mobiles. It has two properties, the companyname of the mobile and the collection of mobile types (Normal, DualSim or SmartPhone)</p> <p><a href="http://lh5.ggpht.com/-hn0O_INXTE0/T4dHFzxaYhI/AAAAAAAAAVY/P0PMuJnMyfI/s1600-h/MobileStore.MobileFilter%25255B4%25255D.png"><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="MobileStore.MobileFilter" border="0" alt="MobileStore.MobileFilter" src="http://lh6.ggpht.com/-iadu7SEfjsI/T4dHItYsp7I/AAAAAAAAAVg/5PsroMEN4gA/MobileStore.MobileFilter_thumb%25255B2%25255D.png?imgmax=800" width="452" height="124"></a></p> <p>The SearchMobiles action method retrieves all the mobiles from the repository and filter it first by the company name and then by the mobile types. One small tweak, if the mobile types count is more than 3, it would take only the first 3 types (Added for demo purpose). I just left the logic of SalesDetails action method blank to keep it simple. Both actions returns a JSON result to make them consumed by ajax. </p> <p><em>(Note: I’ve violated some design principles in the sample code as I just wanted to make this blog post as simple as possible) </em></p> <p><strong>The Problem (Opportunity in my language)</strong></p> <p>In a good world, if the user selected either or both the company name and the mobiles types to be filtered, then our controller in “MyMobileStore” will happily accepts them as a parameter and continue its work without any mishaps.</p> <p><a href="http://lh4.ggpht.com/-vRXoXBgz8D4/T4dHNZ-7KcI/AAAAAAAAAVo/VVNPUSop03M/s1600-h/GoodWorld%25255B11%25255D.png"><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="GoodWorld" border="0" alt="GoodWorld" src="http://lh6.ggpht.com/-gJQvm087Qx0/T4dHSfpRr_I/AAAAAAAAAVw/iuQi2t2NRr4/GoodWorld_thumb%25255B7%25255D.png?imgmax=800" width="661" height="239"></a></p> <p>But in the bad world, if the user missed out either the company names or the mobiles types or both, ASP.NET MVC3 treat them as nulls which might cause null reference exception and breaks the functionality!!</p> <p><a href="http://lh3.ggpht.com/-zxF7hZmWD2o/T4dHW4U4SyI/AAAAAAAAAV4/XqcJBQrPkUo/s1600-h/BadWorld%25255B11%25255D.png"><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="BadWorld" border="0" alt="BadWorld" src="http://lh3.ggpht.com/-P_Y8J8MYteg/T4dHbSlOXcI/AAAAAAAAAWA/dZdSpd8PLEg/BadWorld_thumb%25255B7%25255D.png?imgmax=800" width="636" height="215"></a></p> <p><a href="http://lh3.ggpht.com/-2gENeQC8-Y8/T4dHe4d8_wI/AAAAAAAAAWI/HPCz3jXVDjo/s1600-h/NullException%25255B4%25255D.png"><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="NullException" border="0" alt="NullException" src="http://lh5.ggpht.com/-RyHNe74MVW0/T4dHmUDoR2I/AAAAAAAAAWQ/qqPLk1C-ch0/NullException_thumb%25255B2%25255D.png?imgmax=800" width="587" height="224"></a></p> <p><em>(Now you might have understood why I added a tweak in the number of mobile types <img style="border-bottom-style: none; border-left-style: none; border-top-style: none; border-right-style: none" class="wlEmoticon wlEmoticon-smile" alt="Smile" src="http://lh4.ggpht.com/-hMLWJJ1A8N0/T4dGoWX_KJI/AAAAAAAAAUw/nCxcTP1Y03E/wlEmoticon-smile%25255B2%25255D.png?imgmax=800">)</em></p> <p><strong>Possible Solutions</strong></p> <ol> <li>Perform null check inside the “SearchMobiles” action method and assign empty array.  <li>Write a Custom Model Binder for “MobileFilter” and perform the null check inside the model binding logic</li></ol> <p>Though the option 1 is a simple and straightforward thing, what would you do if the “SalesDetails” action method works with the mobile types collection. You certainly need to duplicate the null checking inside it also. Let us assume that we have some more action methods in our “MyMobileStore” which has “MobileFilter” as their parameter. Do you still duplicate the null check there ?. Think!!</p> <p>If you do so, I am sorry my dear friend, you are violating the <a href="http://en.wikipedia.org/wiki/Don't_repeat_yourself">DRY</a> principle and creating <a href="http://pragprog.com/the-pragmatic-programmer/extracts/software-entropy">a broken window</a> in your codebase! So, lets go ahead and write <a href="http://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882">clean code</a> by making use of Custom Model Binder for our “MobileFilter”. </p> <p><strong>The Pragmatic Solution – MobileFilterModelBinder</strong></p> <p><a href="http://lh6.ggpht.com/-WMCSZqixw84/T4dHp3lrbUI/AAAAAAAAAWY/HAnThoFkLV4/s1600-h/MobileFilterModelBinder%25255B4%25255D.png"><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="MobileFilterModelBinder" border="0" alt="MobileFilterModelBinder" src="http://lh4.ggpht.com/-9PTZzIRxGGI/T4dHxGaIGsI/AAAAAAAAAWg/nemjRAmAxQ0/MobileFilterModelBinder_thumb%25255B2%25255D.png?imgmax=800" width="599" height="217"></a></p> <p>Our custom model binder is very simple, it just makes use of Default Model binding behaviour. After the default behaviour has been done, it checks for null values using <a href="http://msdn.microsoft.com/en-us/library/ms173224.aspx">Null-Coalescing operator</a> and assign empty values if the values are null.</p> <p>Don’t forget add the custom model binder in the Global.asax.cs file.</p> <p><a href="http://lh4.ggpht.com/-CtB3Tyf2R0A/T4dH0cXv0vI/AAAAAAAAAWo/1SolqnuzAnQ/s1600-h/Global%25255B5%25255D.png"><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Global" border="0" alt="Global" src="http://lh4.ggpht.com/-1S7YsQtwsqg/T4dH3Q_Hy4I/AAAAAAAAAWw/KPEMvHzZM7o/Global_thumb%25255B3%25255D.png?imgmax=800" width="556" height="127"></a></p> <p>Now our “MyAppStore” is robust enough to tackle the bad world!!</p> <p><a href="http://lh4.ggpht.com/-gXZi5xzFs8A/T4dH6L3oweI/AAAAAAAAAW4/j4Lfrb41GQk/s1600-h/NoMoreBadWorld%25255B6%25255D.png"><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="NoMoreBadWorld" border="0" alt="NoMoreBadWorld" src="http://lh6.ggpht.com/-nXUV9lG-0H0/T4dH86VvlYI/AAAAAAAAAXA/y6IipcvXf10/NoMoreBadWorld_thumb%25255B4%25255D.png?imgmax=800" width="647" height="236"></a></p> <p><strong>Conclusion</strong></p> <p>In this blog post you have seen an exciting problematic behaviour of JSON model binding in ASP.NET MVC3 and a simple way to get rid of the default model binding problems. In my next blog post I would share my experiences in how to unit test this custom model binders. You can download the source code that I have used in this blog post from <a href="http://www.box.com/s/16dbb662bb2f94babe27">here</a>.&nbsp;&nbsp; </p>  </div>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Going Declarative in C#]]></title>
-    <link href="http://tamizhvendan.github.com/blog/2011/11/22/going-declarative-in-c/"/>
-    <updated>2011-11-22T00:00:00+05:30</updated>
-    <id>http://tamizhvendan.github.com/blog/2011/11/22/going-declarative-in-c</id>
-    <content type="html"><![CDATA[<div class='post'>
-<div dir="ltr" style="text-align: left;" trbidi="on"><br /><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span lang="EN-IN"><a href="http://en.wikipedia.org/wiki/Declarative_programming"><span style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">Declarative programming</span></a></span><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"> can often be a simpler, more concise way to describe the behaviour of a software program than </span><span lang="EN-IN"><a href="http://en.wikipedia.org/wiki/Imperative_programming"><span style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">imperative programming</span></a></span><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">. I am an admirer of declarative aspects of programming ever since I have started writing SQL queries. We always do our best to write code that is easier to read and maintain. Declarative style is one of the proven ways to write clean code. </span><span lang="EN-IN"><a href="http://msdn.microsoft.com/en-us/library/bb308959.aspx"><span style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">LINQ</span></a></span><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"> is an excellent example of declarative style programming that enables the developers to simply state what they want to do. When I am learning </span><span lang="EN-IN"><a href="http://learnyouahaskell.com/higher-order-functions"><span style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">higher order functions in Haskell</span></a></span><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">, I have found the interrelationship between the higher order functions and the LINQ. It really made me to think in a different way to solve a problem. Through this blog post I would like to share my experiments on </span><span lang="EN-IN"><a href="http://en.wikipedia.org/wiki/Higher-order_function"><span style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">higher order functions</span></a></span><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"> in C#.</span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Let me start with a very simple requirement. </span></div><div align="center" class="MsoNormal" style="line-height: 150%; text-align: center;"><i style="mso-bidi-font-style: normal;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">Write a program to print the even numbers present in the given n numbers</span></i></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The code implementation fairly straight forward as below</span></div><div class="separator" style="clear: both; text-align: center;"><a href="http://2.bp.blogspot.com/-F8d-q0yfDxQ/TsutZtHjXFI/AAAAAAAAAMM/VZOQO-TrRkM/s1600/PrintEvenNumbers.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="186" src="http://2.bp.blogspot.com/-F8d-q0yfDxQ/TsutZtHjXFI/AAAAAAAAAMM/VZOQO-TrRkM/s320/PrintEvenNumbers.PNG" width="320" /></a></div><div align="center" class="MsoNormal" style="line-height: 150%; text-align: center;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"><br /></span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fine. Let me add some more twist to the code by adding two more requirements.</span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i style="mso-bidi-font-style: normal;">Modify the program implemented above to print odd numbers and multiples of four present in the given n numbers</i></span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; To be honest, If I have encountered this requirements before I have learnt Higher Order Functions my implementation would be as follows.</span></div><div class="separator" style="clear: both; text-align: center;"><a href="http://2.bp.blogspot.com/-6Yj8HNUD34s/Tsutfjqe-AI/AAAAAAAAAMU/Oq7SKgTBOyA/s1600/TwoMoreReq.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="142" src="http://2.bp.blogspot.com/-6Yj8HNUD34s/Tsutfjqe-AI/AAAAAAAAAMU/Oq7SKgTBOyA/s320/TwoMoreReq.PNG" width="320" /></a></div><div align="center" class="MsoNormal" style="line-height: 150%; text-align: center;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"><br /></span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If you look at the above implementation with a critical eye, you can find a potential candidate of duplication. Let me explain the common pattern that is being used in the implemented PrintXXXX functions.</span></div><div class="MsoListParagraphCxSpFirst" style="line-height: 150%; margin-left: .75in; mso-add-space: auto; mso-list: l0 level1 lfo1; text-align: justify; text-indent: -.25in;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">1.<span style="font: normal normal normal 7pt/normal 'Times New Roman';">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">For each number in the numbers enumerable </span></div><div class="MsoListParagraphCxSpMiddle" style="line-height: 150%; margin-left: 1.25in; mso-add-space: auto; mso-list: l0 level2 lfo1; text-align: justify; text-indent: -.25in;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">a.<span style="font: normal normal normal 7pt/normal 'Times New Roman';">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">Decide whether the number should be printed or not (<b style="mso-bidi-font-weight: normal;">Deciding</b>)</span></div><div class="MsoListParagraphCxSpMiddle" style="line-height: 150%; margin-left: 1.25in; mso-add-space: auto; mso-list: l0 level2 lfo1; text-align: justify; text-indent: -.25in;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">b.<span style="font: normal normal normal 7pt/normal 'Times New Roman';">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">Print the number if it is passes the above decision (<b style="mso-bidi-font-weight: normal;">Doing</b>)</span></div><div class="MsoListParagraphCxSpMiddle" style="line-height: 150%; text-align: justify;"><br /></div><div class="separator" style="clear: both; text-align: center;"><a href="http://1.bp.blogspot.com/-9xr-Hu8TT7U/TsutkGNc9SI/AAAAAAAAAMc/_JeMMy5u1RY/s1600/Duplication.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="320" src="http://1.bp.blogspot.com/-9xr-Hu8TT7U/TsutkGNc9SI/AAAAAAAAAMc/_JeMMy5u1RY/s320/Duplication.PNG" width="298" /></a></div><div align="center" class="MsoListParagraphCxSpMiddle" style="line-height: 150%; text-align: center;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"><br /></span></div><div align="center" class="MsoListParagraphCxSpMiddle" style="line-height: 150%; text-align: center;"><br /></div><div class="MsoListParagraphCxSpMiddle" style="line-height: 150%; margin-left: 0in; mso-add-space: auto; text-align: justify; text-indent: .5in;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">All the three functions iterate over the numbers enumerable and print the numbers. The only thing which actually differentiates the functions is deciding which numbers to be printed.</span></div><div class="MsoListParagraphCxSpMiddle" style="line-height: 150%; margin-left: 0in; mso-add-space: auto; text-align: justify; text-indent: .5in;"><br /></div><div class="MsoListParagraphCxSpMiddle" style="line-height: 150%; margin-left: 0in; mso-add-space: auto; text-align: justify; text-indent: .5in;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">Now the question is how can we eliminate this duplication????</span></div><div class="MsoListParagraphCxSpMiddle" style="line-height: 150%; margin-left: 0in; mso-add-space: auto; text-align: justify; text-indent: .5in;"><br /></div><div class="MsoListParagraphCxSpMiddle" style="line-height: 150%; margin-left: 0in; mso-add-space: auto; text-align: justify; text-indent: .5in;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">It’s where higher order functions come into picture. If we move the deciding part of the function away from its implementation then we can easily achieve it.&nbsp;&nbsp; Here we go! The brand new implementation of Print would be </span></div><div class="MsoListParagraphCxSpMiddle" style="line-height: 150%; margin-left: 0in; mso-add-space: auto; text-align: justify; text-indent: .5in;"><br /></div><div class="separator" style="clear: both; text-align: center;"><a href="http://2.bp.blogspot.com/-9RF4Km0s1NA/TsutoVD_WkI/AAAAAAAAAMk/GWASEODqJTk/s1600/HigherOrderPrint.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="202" src="http://2.bp.blogspot.com/-9RF4Km0s1NA/TsutoVD_WkI/AAAAAAAAAMk/GWASEODqJTk/s320/HigherOrderPrint.PNG" width="320" /></a></div><div align="center" class="MsoListParagraphCxSpMiddle" style="line-height: 150%; margin-left: 0in; mso-add-space: auto; text-align: center; text-indent: .5in;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"><br /></span></div><div class="MsoListParagraphCxSpLast" style="line-height: 150%; margin-left: .75in; mso-add-space: auto; text-align: justify;"><br /></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In the new implementation we have just isolated the deciding part of the function from its implementation and parameterize it as function delegate that takes an integer as its input and return a Boolean value.&nbsp; In the client code (Main function) we are actually just calling the print function and declaratively telling it to print only those numbers which satisfies the given condition. As we separated the deciding part from the actual implementation, we can easily accommodate any future requirements like “<i style="mso-bidi-font-style: normal;">Printing multiples of five, printing only single digit numbers</i>” by declarative calling the Print function like as below</span></div><div class="separator" style="clear: both; text-align: center;"><a href="http://4.bp.blogspot.com/-iunnD2jPXv8/TsutsrFa_4I/AAAAAAAAAMs/oE81RX5J8gY/s1600/AccomodatedRequirement.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="135" src="http://4.bp.blogspot.com/-iunnD2jPXv8/TsutsrFa_4I/AAAAAAAAAMs/oE81RX5J8gY/s320/AccomodatedRequirement.PNG" width="320" /></a></div><div align="center" class="MsoNormal" style="line-height: 150%; text-align: center;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"><br /></span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cool.. Isn’t it ? Let me complicate the things little more. What would you do if you want to call this Print method across different classes?. A notorious option would be creating a </span><span lang="EN-IN"><a href="http://en.wikipedia.org/wiki/Utility_class"><span style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">Utility class</span></a></span><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"> with the Print method and calling it from the other classes. We can also solve these using </span><span lang="EN-IN"><a href="http://msdn.microsoft.com/en-us/library/bb383977.aspx"><span style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">Extension methods</span></a></span><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"> which results a clean readable code like as below</span></div><div class="separator" style="clear: both; text-align: center;"><a href="http://4.bp.blogspot.com/-DZVepYydQ84/TsutwLqz__I/AAAAAAAAAM0/eNlsA0F2jzI/s1600/ExtensionMethod.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="185" src="http://4.bp.blogspot.com/-DZVepYydQ84/TsutwLqz__I/AAAAAAAAAM0/eNlsA0F2jzI/s320/ExtensionMethod.PNG" width="320" /></a></div><div align="center" class="MsoNormal" style="line-height: 150%; text-align: center;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"><br /></span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; So far, so good. We have started with a single function and then we added two more, then eliminated the duplication using Higher Order functions and finally we have made the code readable by using extension method. </span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Okay. Now “<i style="mso-bidi-font-style: normal;">I want to print the strings which starts with ‘s’ in the given n strings </i>”. Pardon me for complicating things, I will stop by this one.</span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; It is almost logically similar to what we have done so far. Instead of numbers here it is string. How can we put it into action?. Thanks to </span><span lang="EN-IN"><a href="http://msdn.microsoft.com/en-us/library/512aeb7t%28v=vs.80%29.aspx"><span style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">Generics</span></a></span><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">. We can easily achieve this by modifying the extension method to support generic type as below</span></div><div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-Cwp_3vrURcU/Tsut-VkAqjI/AAAAAAAAAM8/UrutESWMdw4/s1600/GenericExtensionMethod.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="174" src="http://3.bp.blogspot.com/-Cwp_3vrURcU/Tsut-VkAqjI/AAAAAAAAAM8/UrutESWMdw4/s320/GenericExtensionMethod.PNG" width="320" /></a></div><div align="center" class="MsoNormal" style="line-height: 150%; text-align: center;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"><br /></span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; That’s it. Now you are free to play with all sort of logic you want. You can play with different set of conditions to print the elements or even you can also use different collection of your custom classes. And all can be done declaratively!!</span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Now its time to reveal to the interrelationship exists between the LINQ and the higher order functions. All the LINQ methods are actually using these Print extension methods kind of extension methods under the hood and makes the life of developer easily but letting them to work declaratively. </span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span lang="EN-IN"><a href="http://msdn.microsoft.com/en-us/library/system.threading.tasks.parallel.aspx"><span style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">Parallel Class</span></a></span><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"> a new addition in C# 4.0, also uses higher order functions and enables the developer to say “Hey CLR, I wanna run these methods parallel”. </span></div><div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-oghYOKAdsl4/TsuuMGSPzJI/AAAAAAAAANE/YVpPV4cfTOU/s1600/Parallel+Invoke.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="141" src="http://3.bp.blogspot.com/-oghYOKAdsl4/TsuuMGSPzJI/AAAAAAAAANE/YVpPV4cfTOU/s320/Parallel+Invoke.PNG" width="320" /></a></div><div align="center" class="MsoNormal" style="line-height: 150%; text-align: center;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;"><br /></span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Awesome! No new thread creation and no verbose. </span></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><b style="mso-bidi-font-weight: normal;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">Summary</span></b></div><div class="MsoNormal" style="line-height: 150%; text-align: justify;"><span lang="EN-IN" style="font-family: Georgia, serif; font-size: 12pt; line-height: 150%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Declarative Programming is powerful tool. It creates more readable, cleaner code and also saves the possibility of logical mistakes in multiple similar algorithms. That means fewer mistakes now and in the future.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></div></div></div>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Think Before You LINQ]]></title>
-    <link href="http://tamizhvendan.github.com/blog/2011/11/03/think-before-you-linq/"/>
-    <updated>2011-11-03T00:00:00+05:30</updated>
-    <id>http://tamizhvendan.github.com/blog/2011/11/03/think-before-you-linq</id>
-    <content type="html"><![CDATA[<div class='post'>
-<div>
-<p>LINQ is an awesome feature which I like the most in C#. The abstraction, expressiveness and the power it offers to the code are simply amazing. In general when we think of abstractions, we tend to think towards expressiveness and <a href="http://martinfowler.com/bliki/FluentInterface.html">fluent interfaces</a> and get carried away.</p>
-
-<p>Efficiency of an abstraction is often an afterthought (Based on my experience, correct me if am wrong) and also it is very hard to define an abstraction which should be efficient for all the real world problems it address. When we encountered any efficiency issue in an abstraction, it is our primary responsibility to get rid of it.</p>
-
-<p>Let us assume that you have found an efficiency issue with an abstraction. How would you troubleshoot it? Think! I believe, awareness of internals of the abstraction would be the prime prerequisite to circumvent the problem.&nbsp; Hence as a professional developer we should be aware of what is happening under the hood when we use LINQ or any such kind of abstractions. Though we are not going to employ this in most of our coding efforts, I feel it would be an ideal weapon that we should keep in our arsenal.</p>
-
-<p>I have encountered one of such efficiency issue with LINQ and it really made me to think twice (even thrice) before applying LINQ to solve the problems. Let me explain it through a simple example. Here is the problem which I am going to solve through LINQ.</p>
-
-<p>“I need a method that should take a collection of numbers as its parameter and write all the numbers in the console. If the collection contains only one number it should not write anything”</p>
-
-<p>Here is the code snippet which address this problem and along with the output.
-    <div class="separator" style="clear: both; text-align: center;"><a href="http://4.bp.blogspot.com/-22Zod3zjsX0/TrJi6zjlU9I/AAAAAAAAALc/oK_RVfhUQOs/s1600/1.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="112" src="http://4.bp.blogspot.com/-22Zod3zjsX0/TrJi6zjlU9I/AAAAAAAAALc/oK_RVfhUQOs/s320/1.PNG" width="320" /></a></div>
-</p>
-
-<p>I have used two abstractions on this function, one is the LINQ extension method “Count” and the other one is iterating through the enumeration abstraction. Would you able to find an efficiency issue lurking on this very simple function? Kudos if you find it out.
-</p>
-
-<p>Let me give a small background about LINQ extension methods and Enumeration. Most of the LINQ extension methods are using lazy execution internally and computes the enumeration on demand basis. However some extension methods (Count, Sum) collectively called <a href="http://code.msdn.microsoft.com/LINQ-Aggregate-Operators-c51b3869">Aggregate Operators</a> causes immediate execution instead of lazy execution on the enumeration. We can we make an enumeration to enumerate lazily by using <a href="http://msdn.microsoft.com/en-us/library/9k7k7cf0.aspx">“yield”</a> statements. Enough theory, &nbsp;let us see some code which shows the efficiency issue associated with the function that we have seen earlier</p>
-
-<div class="separator" style="clear: both; text-align: center;"><a href="http://2.bp.blogspot.com/-Gfsxz8fP4WU/TrJi642QHRI/AAAAAAAAALk/OsojBB--7jM/s1600/2.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="181" src="http://2.bp.blogspot.com/-Gfsxz8fP4WU/TrJi642QHRI/AAAAAAAAALk/OsojBB--7jM/s320/2.PNG" width="320" /></a></div>
-
-<p>I have added some code in “PrintMe” method to log how it is actually getting executed. Also I have added the “GetNumbers” method which lazily creates a list of numbers using yield statement. </p>
-
-<p>Now can you able to find the exact issue associated with the method “PrintMe”? The red lines are areas of concern. The list is yielded twice!! One while using the Aggregate Operator of LINQ “Count” which causes immediate execution results enumeration all the yields and the second one is yielding the list once again lazily when enumerating through “foreach” loop.</p>
-
-<p>Though it is just a matter of nanoseconds in this example, it may be possible candidate of bottleneck in real world. So, whenever you are doing more than one operation on LINQ or an enumeration or both combined, do not forget think about efficiency. <em>In fact we should give a special attention to the speed of our algorithm when we are actually coding it.</em> (Refer <a href="http://pragprog.com/the-pragmatic-programmer">Pragmatic Programmer</a>, Chapter 6, While You Are Coding)</p>
-
-<p>I hope now you are ready to think about efficiency when you code. Here in our case we can get rid of the efficiency issue by converting the enumeration of number to an array or a list using LINQ <a href="http://code.msdn.microsoft.com/LINQ-Conversion-Operators-e4e59714">convertor operators</a> ToArray or ToList respectively. Like aggregate operators it causes immediate execution and converts the enumeration to the target type. Then we can do the operations on the converted target. Here is the code snippet of that with the output.</p>
-
-<div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-sJ0FDYxkl9Y/TrJi63comkI/AAAAAAAAALg/iPn8h9xdVOQ/s1600/3.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="97" src="http://3.bp.blogspot.com/-sJ0FDYxkl9Y/TrJi63comkI/AAAAAAAAALg/iPn8h9xdVOQ/s320/3.PNG" width="320" /></a></div>
-
-<p>The modified code now iterate through the list only once!!</p>
-
-<h4>Summary:</h4>
-
-<p>Would you use powerful weapons to get rid of smaller problems, certainly not? LINQ is such kind of powerful weapon which is meant to solve powerful problems. So, think twice before using LINQ and don’t use it blindly. Efficiency Matters!! &nbsp;</p>
-</div></div>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Observer Pattern using Delegates V/s Observer Pattern using Events and Delegates]]></title>
-    <link href="http://tamizhvendan.github.com/blog/2011/07/13/observer-pattern-using-delegates-vs/"/>
-    <updated>2011-07-13T00:00:00+05:30</updated>
-    <id>http://tamizhvendan.github.com/blog/2011/07/13/observer-pattern-using-delegates-vs</id>
-    <content type="html"><![CDATA[<div class='post'>
-    <p>
-Most of the articles and texts in C# demonstrate the observer pattern using events and delegates. When going through one such text, a thought come across my mind. Why we are going for events when we can easily achieve the multicasting using Delegates alone. After some R&amp;D, I found it out why and hence this blog post. </p> <p>I am going to explain this “why” using a Weather Station example. To keep things simple, the Weather Station that we are going to see will keep track of only the temperature. Whenever the temperature changes, it simplify notifies its subscribers with the new temperature. Flash News is one of the subscribers which show the temperature in flash news. News Feed, another subscriber which adds the temperature information to the news feed. Fine, enough theory! It’s time to see the code.</p>
-<p>Here is the implementation of Observer Pattern using Delegates alone. </p>
-<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">namespace</span> <span class="nn">DelegatesAndEvents</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">WeatherStation</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">private</span> <span class="kt">int</span> <span class="n">_temperature</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">public</span> <span class="n">TemperatureReporter</span> <span class="n">Reporter</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">public</span> <span class="kt">int</span> <span class="n">Temperature</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="k">get</span> <span class="p">{</span> <span class="k">return</span> <span class="n">_temperature</span><span class="p">;</span> <span class="p">}</span>
-</span><span class='line'>            <span class="k">set</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">Reporter</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="n">Reporter</span><span class="p">(</span><span class="k">value</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>                <span class="n">_tempearture</span> <span class="p">=</span> <span class="k">value</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">NewsFeed</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">AddTemperatureInfoToFeed</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;News Feed: New temperature &quot;</span> <span class="p">+</span> <span class="n">temperature</span> <span class="p">+</span> <span class="s">&quot; added to feed.&quot;</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">public</span> <span class="nf">NewsFeed</span><span class="p">(</span><span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
-</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">+=</span> <span class="n">AddTemperatureInfoToFeed</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">FlashNews</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">ShowTemperatureInfoInFlashNews</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Flash News: New temperature is &quot;</span> <span class="p">+</span> <span class="n">temperature</span> <span class="p">+</span> <span class="s">&quot;.&quot;</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">public</span> <span class="nf">FlashNews</span><span class="p">(</span><span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
-</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">+=</span> <span class="n">ShowTemperatureInfoInFlashNews</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-    <h4>The Main Program</h4>
-
-<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">namespace</span> <span class="nn">DelegatesAndEvents</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">public</span> <span class="k">delegate</span> <span class="k">void</span> <span class="nf">TemperatureReporter</span><span class="p">(</span><span class="kt">int</span> <span class="n">tempearture</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">Program</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// Observer Pattern Using Delegates</span>
-</span><span class='line'>            <span class="n">WeatherStation</span> <span class="n">weatherStation</span> <span class="p">=</span> <span class="k">new</span> <span class="n">WeatherStation</span><span class="p">();</span>
-</span><span class='line'>            <span class="n">FlashNews</span> <span class="n">flashNews</span> <span class="p">=</span> <span class="k">new</span> <span class="n">FlashNews</span><span class="p">(</span><span class="n">weatherStation</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">NewsFeed</span> <span class="n">newsFeed</span> <span class="p">=</span> <span class="k">new</span> <span class="n">NewsFeed</span><span class="p">(</span><span class="n">weatherStation</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Temperature</span> <span class="p">=</span> <span class="m">30</span><span class="p">;</span>
-</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Temperature</span> <span class="p">=</span> <span class="m">15</span><span class="p">;</span>
-</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Temperature</span> <span class="p">=</span> <span class="m">45</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-<h4>The output</h4><div class="separator" style="clear: both; text-align: center;"><a href="http://1.bp.blogspot.com/-LjDx8rPsr50/Th0bSdtTyHI/AAAAAAAAAHk/dMBuF4GLgD0/s1600/delegates-output.PNG" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img src="http://1.bp.blogspot.com/-LjDx8rPsr50/Th0bSdtTyHI/AAAAAAAAAHk/dMBuF4GLgD0/s320/delegates-output.PNG" /></a></div>
-<p>Hurrah! It’s working as expected. Both subscribers are get notified. We can implement the observer pattern using delegates alone. Stop for a minute and go through the code, is the implementation robust? Kudos if you are able to find the shortcomings of this implementation. If not continue reading. </p> <p>Think of a world where everyone is good. There is no need of police, no need of court either. But it is not the case. You may wonder why I am mentioning this here. This analogy holds true for the objective of this blog post too. There is no need of using events in the c# programming world if all the subscribers are good. Miserably, here also it is not the case. Hence we are going for events instead of using delegates alone. </p>
-<h4>Drawbacks of using delegates alone</h4>
-<ul><li>A subscriber can replace other subscribers by reassigning the delegate</li><li>A subscriber can clear all other subscribers also (by setting the delegate to null). </li><li>A subscriber can broadcast to other subscribers by invoking the delegate</li></ul>Clearly all the above 3 drawbacks violates the Observer Pattern.Here is our evil subscriber code implementation. 
-<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">namespace</span> <span class="nn">DelegatesAndEvents</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">EvilSubscriber</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">EvilMessage</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;The temperature is &quot;</span> <span class="p">+</span> <span class="p">(</span><span class="n">temperature</span> <span class="p">*</span> <span class="m">100</span><span class="p">));</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">public</span> <span class="nf">EvilSubscriber</span><span class="p">(</span><span class="n">WeatherStation</span> <span class="n">weatherStation</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Broadcast to all the subscriber</span>
-</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span><span class="p">(</span><span class="m">60</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Reassign the subscriber            </span>
-</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">=</span> <span class="n">EvilMessage</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="c1">// Replace all the subscribers            </span>
-</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Hope now you understand the need of a better implementation of observer pattern. Here comes the salvage. Event! Use event along with delegates. With event in place, compiler will not allow the evil subscriber to get compiled. </p> 
-<h4>Robust implementation of Weather Station using events</h4>
-
-<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">namespace</span> <span class="nn">DelegatesAndEvents</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">WeatherStation2</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">private</span> <span class="kt">int</span> <span class="n">_tempearture</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">public</span> <span class="k">event</span> <span class="n">TemperatureReporter</span> <span class="n">Reporter</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">public</span> <span class="kt">int</span> <span class="n">Temperature</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="k">get</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="k">return</span> <span class="n">_tempearture</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">set</span>
-</span><span class='line'>            <span class="p">{</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">Reporter</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">{</span>
-</span><span class='line'>                    <span class="n">Reporter</span><span class="p">(</span><span class="k">value</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>                <span class="n">_tempearture</span> <span class="p">=</span> <span class="k">value</span><span class="p">;</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">NewsFeed2</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">AddTemperatureInfoToFeed</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;News Feed2: New temperature &quot;</span> <span class="p">+</span> <span class="n">temperature</span> <span class="p">+</span> <span class="s">&quot; added to feed.&quot;</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">public</span> <span class="nf">NewsFeed2</span><span class="p">(</span><span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
-</span><span class='line'>            <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">+=</span> <span class="n">AddTemperatureInfoToFeed</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">class</span> <span class="nc">FlashNews2</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">public</span> <span class="k">void</span> <span class="nf">ShowTemperatureInfoInFlashNews</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;Flash News2: New temperature is &quot;</span> <span class="p">+</span> <span class="n">temperature</span> <span class="p">+</span> <span class="s">&quot;.&quot;</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">public</span> <span class="nf">FlashNews2</span><span class="p">(</span><span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">)</span>
-</span><span class='line'>        <span class="p">{</span>
-</span><span class='line'>            <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span> <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">+=</span> <span class="n">ShowTemperatureInfoInFlashNews</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>The unfortunate evil subscriber no longer compiles with events!</p> 
-<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">class</span> <span class="nc">EvilSubscriber2</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">public</span> <span class="k">void</span> <span class="nf">EvilMessage</span><span class="p">(</span><span class="kt">int</span> <span class="n">temperature</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;The temperature is &quot;</span> <span class="p">+</span> <span class="p">(</span><span class="n">temperature</span> <span class="p">*</span> <span class="m">100</span><span class="p">));</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">public</span> <span class="nf">EvilSubscriber2</span><span class="p">(</span><span class="n">WeatherStation2</span> <span class="n">weatherStation</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="k">this</span><span class="p">.</span><span class="n">weatherStation</span> <span class="p">=</span> <span class="n">weatherStation</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Broadcast to all the subscriber         </span>
-</span><span class='line'>        <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span><span class="p">(</span><span class="m">60</span><span class="p">);</span> <span class="c1">// Compiler Error                </span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Reassign the subscriber                </span>
-</span><span class='line'>        <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">=</span> <span class="n">EvilMessage</span><span class="p">;</span> <span class="c1">// Compiler Error  </span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Replace all the subscribers                 </span>
-</span><span class='line'>        <span class="n">weatherStation</span><span class="p">.</span><span class="n">Reporter</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span> <span class="c1">// Compiler Error    </span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-<br />
-You&nbsp;can download the source code from <a href="http://www.box.net/shared/kunno1y9noj26qodstnz">here</a></div>
-
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Dynamic Polymorphism - A Real time example]]></title>
@@ -479,113 +22,75 @@ You&nbsp;can download the source code from <a href="http://www.box.net/shared/ku
 <div><div><div><div><div><div>In this blog post we are going to see, how to achieve dynamic polymorphism in c# using interfaces through a small game simulator called "War".<br /><br /><div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-F-5wRIWJiKE/TbOvdE6MOnI/AAAAAAAAAGM/r1vs5p8LzUE/s1600/WarForm.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="221px" src="http://3.bp.blogspot.com/-F-5wRIWJiKE/TbOvdE6MOnI/AAAAAAAAAGM/r1vs5p8LzUE/s320/WarForm.png" width="320px" /></a></div><br />
 <p>The simulator is simple and straight forward to play. The user just need to select a weapon and click on "Attack".<br /> </br>
 <p>Let me explain some theoretical background about "Dynamic Polymorphism" before dive into implementing the Game simulator. To put in a simple terms, Dynamic Polymorphism means changing the behavior at run time. Let us see an example of what does it mean. If a dog smells a cat, it will bark and if it smells a food, it will salivate. Here, the smelling sense of the dog is same. But depending on what does it smell, it change its behavior. Hope now you are aware of what is mean by dynamic polymorphism. Just stop reading and think what is the dynamic polymorphic behavior here in the "War" simulator.</p>.<br />Yes, you are absolutely correct!! The Attacking behavior is the dynamic polymorphic behavior. The behavior of attack button will vary with respect to the weapon the user has chosen.&nbsp; <br /><br />Fine.. Lets dive into the code!!<br /><br /><h4>Step1: Design the Main Form</h4><ol><li>Create a new Windows Forms Application and name it as "War"</li><li>Rename the "Form1.cs" file to "MainForm.cs" and Click "Yes" to let the Visual Studio to do the renaming for you.</li><li>Add a groupbox control and change its "Text" Property to "Weapon"</li><li>Add three radio button controls inside the groupbox and change their "Text" Property to Sword, Gun and bomb respectively.</li><li>Add a button control and change its "Text" property to "Attack!!".</li><li>Rename the "Name " property of all the controls added to some meaningful names like rboSword for Sword Radiobutton</li><li>The Final Finished will look like the screenshot in the beginning of this blog.&nbsp;&nbsp; </li></ol><h4>Step 2: Create an Interface called IWeapon</h4><ol><li>Right click on the Project name "War" in the solution explorer and add a new interface file called "IWeapon.cs"</li><li>This interface IWeapon will have a public method called "Attack" which defines a contract so that all the Weapon we are going to create should implement this IWeapon interface and provide the implementation code for the Attack() method</li></ol></div>
-<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">interface</span> <span class="n">IWeapon</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">void</span> <span class="nf">Attack</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+{% codeblock lang:csharp %}
+public interface IWeapon 
+{ 
+    void Attack(); 
+}
+{% endcodeblock %}
 </div><h4>Step3: Create the concrete Weapon Classes&nbsp;</h4><ol><li>Add three class files to the "War" Project with the names "Sword.cs", ""Gun.cs", "Bomb.cs"</li><li>These classes represents the actual weapons and that we are going use in our simulator. Each of these classes will implement the IWeapon interface and provide the implementation code for the "Attack()" method.</li><li>Modify the class files as follows</li></ol></div>
 <h6>Sword.cs</h6>
-<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">class</span> <span class="nc">Sword</span> <span class="p">:</span> <span class="n">IWeapon</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">public</span> <span class="k">void</span> <span class="nf">Attack</span><span class="p">()</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">System</span><span class="p">.</span><span class="n">Windows</span><span class="p">.</span><span class="n">Forms</span><span class="p">.</span><span class="n">MessageBox</span><span class="p">.</span><span class="n">Show</span><span class="p">(</span><span class="s">&quot;Sword!!&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+{% codeblock lang:csharp %}
+public class Sword : IWeapon    
+{       
+    public void Attack() 
+    {            
+        System.Windows.Forms.MessageBox.Show("Sword!!");        
+    }    
+}
+{% endcodeblock %}
 <h6>Gun.cs</h6>
-<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">class</span> <span class="nc">Gun</span> <span class="p">:</span> <span class="n">IWeapon</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">public</span> <span class="k">void</span> <span class="nf">Attack</span><span class="p">()</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">System</span><span class="p">.</span><span class="n">Windows</span><span class="p">.</span><span class="n">Forms</span><span class="p">.</span><span class="n">MessageBox</span><span class="p">.</span><span class="n">Show</span><span class="p">(</span><span class="s">&quot;Gun!!&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+{% codeblock lang:csharp %}
+public class Gun : IWeapon    
+{       
+    public void Attack() 
+    {            
+        System.Windows.Forms.MessageBox.Show("Gun!!");        
+    }    
+}
+{% endcodeblock %}
 <h6>Bomb.cs</h6>
-<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">class</span> <span class="nc">Bomb</span> <span class="p">:</span> <span class="n">IWeapon</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">public</span> <span class="k">void</span> <span class="nf">Attack</span><span class="p">()</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="n">System</span><span class="p">.</span><span class="n">Windows</span><span class="p">.</span><span class="n">Forms</span><span class="p">.</span><span class="n">MessageBox</span><span class="p">.</span><span class="n">Show</span><span class="p">(</span><span class="s">&quot;Bomb!!&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+{% codeblock lang:csharp %}
+public class Bomb : IWeapon    
+{       
+    public void Attack() 
+    {
+        System.Windows.Forms.MessageBox.Show("Bomb!!");        
+    }    
+}
+{% endcodeblock %}
 </div>
 The Attack() method will show a message box with a text saying the weapon name being used.<br /><br />
 <h4>Step 4: Program the "War" Simulator Main Form</h4><br />Now the stage is set for the real show. Let us wire the code of MainForm.cs and make the "War" simulator.<br /><ol><li>Add a private instance variable of type IWeapon in the MainForm class and initialize with the sword class. This will hold the reference of current weapon being used Note: Sword is the default weapon.
-<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">partial</span> <span class="k">class</span> <span class="nc">MainForm</span> <span class="p">:</span> <span class="n">Form</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">private</span> <span class="n">IWeapon</span> <span class="n">weapon</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Sword</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+{% codeblock lang:csharp %}
+public partial class MainForm : Form
+{
+    private IWeapon weapon = new Sword();   
+}
+{% endcodeblock %}
 </li>
 <li>Now we are going to add event handlers for the weapons radiobuttons. They will change the reference stored in the instance variable "weapon" to the respective Weapons class. Add the checked change event for all the radio button and their event handlers will look like as follows.
-<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">rboSword_CheckedChanged</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">weapon</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Sword</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">rboGun_CheckedChanged</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">weapon</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Gun</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">rboBomb_CheckedChanged</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">weapon</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Bomb</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+{% codeblock lang:csharp %}
+private void rboSword_CheckedChanged(object sender, EventArgs e)
+{
+    weapon = new Sword();
+}
+private void rboGun_CheckedChanged(object sender, EventArgs e)
+{
+    weapon = new Gun();
+}
+private void rboBomb_CheckedChanged(object sender, EventArgs e)
+{
+    weapon = new Bomb();
+}
+{% endcodeblock %}
     </li><li>Add the Click event handler for the "Attack" button. This event handler will simply call the Attack() method of the instance variable "weapon"<br />
-<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">btnAttack_Click</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">EventArgs</span> <span class="n">e</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">weapon</span><span class="p">.</span><span class="n">Attack</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+{% codeblock lang:csharp %}
+private void btnAttack_Click(object sender, EventArgs e)
+{
+    weapon.Attack();
+}
+{% endcodeblock %}
 </li></ol></div><b>Summary</b><br />In this blog we have seen a basic real time example on implementing dynamic polymorphism.<b> </b>You can download the source code of this sample from <a href="http://www.box.net/shared/y12zyr2d66">here</a>.</div></div>
 
 ]]></content>

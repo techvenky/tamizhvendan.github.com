@@ -2,25 +2,25 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://tamizhvendan.github.com/blog/2011/01/05/thank-god/</loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>
             http://tamizhvendan.github.com/blog/2011/01/07/programmatic-solution-for-real-time/
         </loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>
             http://tamizhvendan.github.com/blog/2011/02/07/creating-webpage-like-igoogle-using/
         </loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>
             http://tamizhvendan.github.com/blog/2011/02/10/in-this-blog-we-are-going-to-see-how/
         </loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>
@@ -60,59 +60,59 @@
         <loc>
             http://tamizhvendan.github.com/blog/2011/07/13/observer-pattern-using-delegates-vs/
         </loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>
             http://tamizhvendan.github.com/blog/2011/07/27/journey-towards-software-craftsmanship/
         </loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>
             http://tamizhvendan.github.com/blog/2011/08/03/using-ajaxbeginform-aspnet-mvc3-ajax/
         </loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>
             http://tamizhvendan.github.com/blog/2011/08/04/ef-code-first-41-in-console-application/
         </loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>
             http://tamizhvendan.github.com/blog/2011/08/13/test-driving-model-validation-in-aspnet/
         </loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>
             http://tamizhvendan.github.com/blog/2011/08/17/test-driving-model-validation-in-aspnet_17/
         </loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>http://tamizhvendan.github.com/blog/2011/09/15/practice-practice-practice/</loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>http://tamizhvendan.github.com/blog/2011/11/03/think-before-you-linq/</loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>http://tamizhvendan.github.com/blog/2011/11/22/going-declarative-in-c/</loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>http://tamizhvendan.github.com/blog/2011/12/29/2012-year-of-aspirations/</loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>
             http://tamizhvendan.github.com/blog/2012/02/02/unit-testing-with-sessions-in-aspnet/
         </loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>
@@ -124,31 +124,37 @@
         <loc>
             http://tamizhvendan.github.com/blog/2012/03/04/unit-testing-html-helpers-in-aspnet/
         </loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>http://tamizhvendan.github.com/blog/2012/04/13/interesting-json-model-binding/</loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>
             http://tamizhvendan.github.com/blog/2012/05/19/jade-visualizer-using-nodejs-and/
         </loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
     </url>
     <url>
         <loc>
             http://tamizhvendan.github.com/blog/2012/06/01/hybrid-application-using-aspnet-mvc3/
         </loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-07-19T13:48:58+05:30</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://tamizhvendan.github.com/blog/2013/08/08/if-your-fsharp-code-compiles-it-usually-works/
+        </loc>
+        <lastmod>2013-08-08T16:23:06+05:30</lastmod>
     </url>
     <url>
         <loc>http://tamizhvendan.github.com/</loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-08-08T16:23:06+05:30</lastmod>
     </url>
     <url>
         <loc>http://tamizhvendan.github.com/blog/archives/</loc>
-        <lastmod>2013-07-30T16:13:42+05:30</lastmod>
+        <lastmod>2013-08-08T16:23:06+05:30</lastmod>
     </url>
     <url>
         <loc>http://tamizhvendan.github.com/robots.txt</loc>
