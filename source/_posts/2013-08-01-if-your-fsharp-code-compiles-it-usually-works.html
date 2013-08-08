@@ -1,14 +1,14 @@
 ---
 layout: post
 title: "If your fsharp code compiles it usually works"
-date: 2013-08-01 11:39
+date: 2013-08-08 11:39
 comments: true
 categories: fsharp
 ---
 <div class="post">
 
   <p>
-    When I first started learning fsharp, one of the astounding fact that hit my mind was <em>"If the code compiles it usually works!"</em> For a guy who is coming from c# and Java Programming background it was bit weird! After delving deep into f# I have found it very useful and inspired by its awesomeness. In this blog-post I'll be covering some of my experiences that I come across while learning this great feature!  
+    When I first started learning fsharp, one of the astounding fact that hit my mind was <em>"If the code compiles it usually works!"</em> For a guy who is coming from c# and java Programming background it was bit weird! After delving deep into f# I have found it very useful and inspired by its awesomeness. In this blog-post I'll be covering some of my experiences that I come across while learning this great feature!  
   </p>
 
   <h3>Fever Diagnosis Program</h3>
@@ -17,7 +17,7 @@ categories: fsharp
   </p>
 
   <h3>Defining Temperature Types</h3>
-  <p>One of the cool feature that I like about f# is its less verbosity. You can do lot of magic things with less lines of code! Consider our fever diagnosis program, A temperature can be of type either Celsius or Fahrenheit. Here is the equivalent type defined in f#</p>
+  <p>One of the cool feature that I like about f# is its less verbosity. You can do lot of magic things with less lines of code! Consider our fever diagnosis program, A temperature can be either in Celsius or in Fahrenheit. Here is the equivalent type defined in f#</p>
 
   {% codeblock lang:fsharp %}
 type Temperature = 
@@ -25,7 +25,7 @@ type Temperature =
   | Fahrenheit of double  {% endcodeblock %}
 
   <p>Just 3 lines of code!</p>
-  <p>The type Temperature has been defined as a <a href="http://en.wikibooks.org/wiki/F_Sharp_Programming/Discriminated_Unions">discriminated union.</a> Discriminated unions represent data that can take on one of a few different types of results.</p> Also in this 3 lines we have described the strongly typed alias for temperature in both Celsius and in Fahrenheit. With this code in place if you want to describe a temperature in Celsius or in Fahrenheit all you need to use the following syntax
+  <p>The type Temperature has been defined as a <a href="http://en.wikibooks.org/wiki/F_Sharp_Programming/Discriminated_Unions">discriminated union.</a> In brief, Discriminated union represent data that can take on one of a few different types of results.</p> <p>Also in this 3 lines we have described the strongly typed alias for temperature in both Celsius and in Fahrenheit. With this code in place if you want to describe a temperature in Celsius or in Fahrenheit all you need to use the following syntax</p>
 
   {% codeblock lang:fsharp %}
 let tempInCelsius = Celsius 10.8
@@ -89,6 +89,17 @@ hasFever (Fahrenheit 22.5){% endcodeblock %}
 <p>Based on the type we are passing in the hasFever function, the corresponding pattern will be matched then the value is decomposed and verified with their respective numbers. Code is prettier, isn't it ?</p>
 
 <h3>What's the big deal in it?</h3>
-<p>You might think apart from reducing the lines of code what else f# adds ?. Great! I was exactly like you when I first come across it. Later I've found out it how it can us to save some hairs ;-) </p>
+<p>You might think apart from reducing the lines of code what else f# adds ?. Great! I was exactly like you when I first come across it. Later I've found out it how it can help us to save some hairs ;-) </p>
 
+<p>Let us assume that we forget to handle Fahrenheit in hasFever function</p>
+{% codeblock lang:fsharp %}
+let hasFever temperature =
+  match temperature with 
+  | Celsius value -> (value > 37.5){% endcodeblock %}
+<p>Typically in C# if we missed to handle one of the cases like this we won't be getting any compiler error and It'd crash the application in the runtime. But in f#, the above code would result in following compiler error</p>
+<pre>warning FS0025: Incomplete pattern matches on this expression, For example, the value 'Fahrenheit (_)' may indicate a case not covered by the pattern(s)</pre>
+<p>So, if you make any logical error like this is your f# code, compiler will show compile time errors and prevents you from building buggy code!</p>
+
+<h3>Summary</h3>
+<p>If you follow the idioms of f#, it will let you write a better code and even if do some logical error the compiler will come as a rescue!. You can check the source code live in <a href="http://www.tryfsharp.org/create/tamizhvendan/fever_diagnosis.fsx">tryfsharp</a> </p>
 </div>
